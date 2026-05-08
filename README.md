@@ -1,2 +1,0 @@
-# ChrisKurz.github.io
-website
