@@ -1,37 +1,120 @@
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-<title>Test</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kconfig Explorer — .config analyzer for Zephyr / NCS</title>
+<meta name="description" content="Load a Zephyr / nRF Connect SDK .config file and browse it as a symbol tree, or list every CONFIG_*=y symbol.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%23161a1e'/%3E%3Ccircle cx='50' cy='50' r='14' fill='%234fd1c5'/%3E%3Cpath d='M50 8v20M50 72v20M8 50h20M72 50h20' stroke='%23c98a52' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-<h1>Test</h1>
-<p>Be <b>bold</b> in stating your key points. Put them in a list: </p>
-<ul>
-<li>The first item in your list</li>
-<li>The second item; <i>italicize</i> key words</li>
-</ul>
-<p>Improve your image by including an image. </p>
-<p><img src="http://www.mygifs.com/CoverImage.gif" alt="A Great HTML Resource"></p>
-<p>Add a link to your favorite <a href="https://www.dummies.com/">Web site</a>.
-Break up your page with a horizontal rule or two. </p>
-<hr>
-<p>Finally, link to <a href="page2.html">another page</a> in your own Web site.</p>
 
-<h1>The button Element</h1>
-<button type="button" onclick="alert('Hello world!')">Click Me!</button>
+<div class="app">
 
-<hr>
-  
-<label for="cars">Choose a car:</label>
-<select name="cars" id="cars">
-  <option value="volvo">Volvo</option>
-  <option value="saab">Saab</option>
-  <option value="mercedes">Mercedes</option>
-  <option value="audi">Audi</option>
-</select>
+  <header class="header">
+    <div class="brand">
+      <svg class="brand-mark" width="30" height="30" viewBox="0 0 100 100" aria-hidden="true">
+        <rect width="100" height="100" rx="18" fill="#1c2024"/>
+        <circle cx="50" cy="50" r="13" fill="#4fd1c5"/>
+        <path d="M50 8v20M50 72v20M8 50h20M72 50h20" stroke="#c98a52" stroke-width="6" stroke-linecap="round"/>
+      </svg>
+      <div class="brand-text">
+        <h1>Kconfig Explorer</h1>
+        <p>Load a Zephyr / NCS <code>.config</code> and see the symbol tree</p>
+      </div>
+    </div>
 
-<hr>
-  
-<p>© Chris Kurz, 2026</p>
+    <div class="file-controls">
+      <label class="btn btn-primary" for="fileInput">
+        <span>Open .config file</span>
+        <input type="file" id="fileInput" accept=".config,.txt,text/plain" hidden>
+      </label>
+      <button class="btn btn-ghost" id="sampleBtn" type="button">Try a sample</button>
+      <button class="btn btn-ghost" id="clearBtn" type="button" hidden>Clear</button>
+      <span class="file-name" id="fileName"></span>
+    </div>
+  </header>
+
+  <section class="drop-hint" id="dropHint">
+    <div class="drop-inner">
+      <svg width="46" height="46" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 3v12m0-12 4.5 4.5M12 3 7.5 7.5" stroke="#4fd1c5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M4 16v2.5A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V16" stroke="#c98a52" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h2>Drop a <code>.config</code> file here</h2>
+      <p>Or use "Open .config file" above — everything runs locally in your browser, nothing is uploaded anywhere.</p>
+      <p class="drop-sub">Typically found at <code>build/zephyr/.config</code> in an NCS / Zephyr build directory.</p>
+    </div>
+  </section>
+
+  <section class="stats-bar" id="statsBar" hidden></section>
+
+  <section class="toolbar" id="toolbar" hidden>
+    <div class="tabs" id="tabs" role="tablist">
+      <button class="tab active" data-tab="tree" role="tab" aria-selected="true">Tree</button>
+      <button class="tab" data-tab="enabled" role="tab" aria-selected="false">Enabled (=y)</button>
+      <button class="tab" data-tab="all" role="tab" aria-selected="false">All symbols</button>
+    </div>
+    <div class="search-wrap">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" stroke="#8a9199" stroke-width="1.8"/>
+        <path d="M20 20l-3.5-3.5" stroke="#8a9199" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Filter symbols, e.g. BT_PERIPHERAL">
+      <button id="searchClear" class="search-clear" title="Clear filter" hidden>&times;</button>
+    </div>
+  </section>
+
+  <main class="content">
+    <div class="panel" id="treeView" hidden>
+      <ul class="tree-children tree-root-list" id="treeRoot"></ul>
+      <p class="empty-note" id="treeEmpty" hidden>No symbols match "<span></span>".</p>
+    </div>
+
+    <div class="panel" id="enabledView" hidden>
+      <div class="panel-head">
+        <span id="enabledCount"></span>
+        <div class="enabled-controls">
+          <label class="checkbox-label" for="topLevelOnly" title="Only CONFIG_NAME symbols with no further &quot;_&quot; separator — hides sub-symbols like CONFIG_BT_PERIPHERAL">
+            <input type="checkbox" id="topLevelOnly">
+            <span>Top-level symbols only <code>CONFIG_NAME</code></span>
+          </label>
+          <button class="btn btn-ghost btn-small" id="exportEnabled" type="button">Export list (.txt)</button>
+        </div>
+      </div>
+      <ul class="flat-list" id="enabledList"></ul>
+      <p class="empty-note" id="enabledEmpty" hidden>No enabled (<code>=y</code>) symbols match this filter.</p>
+    </div>
+
+    <div class="panel" id="allView" hidden>
+      <div class="panel-head">
+        <span id="allCount"></span>
+        <div class="sort-controls">
+          <span class="sort-label">Sort by</span>
+          <button class="btn btn-ghost btn-small sort-btn active" data-sort="name">Name</button>
+          <button class="btn btn-ghost btn-small sort-btn" data-sort="value">Value</button>
+          <button class="btn btn-ghost btn-small sort-btn" data-sort="line">Line #</button>
+        </div>
+      </div>
+      <table class="all-table">
+        <thead><tr><th>Symbol</th><th>Value</th><th>Type</th><th>Line</th></tr></thead>
+        <tbody id="allTableBody"></tbody>
+      </table>
+      <p class="empty-note" id="allEmpty" hidden>No symbols match this filter.</p>
+    </div>
+  </main>
+
+  <aside class="details-panel" id="detailsPanel" hidden>
+    <button class="details-close" id="detailsClose" aria-label="Close">&times;</button>
+    <div id="detailsBody"></div>
+  </aside>
+
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>
