@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual — User Guide</title>
+<style>
+    :root {
+        --bg: #12141c;
+        --bg-elevated: #181b26;
+        --border: #262a37;
+        --text-primary: #e7e9ee;
+        --text-secondary: #9198ac;
+        --text-muted: #6b7286;
+        --accent: #e3a33d;
+        --accent-soft: rgba(227, 163, 61, 0.14);
+        --sidebar-hover: #1f2330;
+        --shadow: rgba(0, 0, 0, 0.35);
+    }
+
+    html[data-theme="light"] {
+        --bg: #faf9f7;
+        --bg-elevated: #ffffff;
+        --border: #e6e2da;
+        --text-primary: #211f1c;
+        --text-secondary: #5c584f;
+        --text-muted: #8a8578;
+        --accent: #b0700f;
+        --accent-soft: rgba(176, 112, 15, 0.10);
+        --sidebar-hover: #f1eee7;
+        --shadow: rgba(0, 0, 0, 0.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--bg);
+        color: var(--text-primary);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+        transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* --- Top bar --- */
+    header.top-bar {
+        height: 64px;
+        background-color: var(--bg-elevated);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 28px;
+        flex-shrink: 0;
+    }
+
+    .top-bar .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .top-bar .brand svg {
+        width: 22px;
+        height: 22px;
+        color: var(--accent);
+        flex-shrink: 0;
+    }
+
+    .top-bar .brand-name {
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: var(--text-primary);
+        letter-spacing: -0.01em;
+    }
+
+    .top-bar .divider {
+        width: 1px;
+        height: 22px;
+        background-color: var(--border);
+        margin: 0 16px;
+    }
+
+    .top-bar .tool-badge {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.15;
+    }
+
+    .top-bar .tool-badge .tool-label {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+    }
+
+    .top-bar .tool-badge .tool-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--accent);
+    }
+
+    .top-bar .right-controls {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .theme-toggle {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background-color: transparent;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.2s, color 0.2s;
+    }
+
+    .theme-toggle:hover {
+        background-color: var(--sidebar-hover);
+        color: var(--accent);
+    }
+
+    .theme-toggle svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* --- Main layout --- */
+    .main-container {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    aside.sidebar {
+        width: 272px;
+        background-color: var(--bg-elevated);
+        border-right: 1px solid var(--border);
+        padding: 28px 14px;
+        overflow-y: auto;
+        flex-shrink: 0;
+    }
+
+    aside.sidebar h3 {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+        padding-left: 10px;
+        font-weight: 500;
+    }
+
+    aside.sidebar ul {
+        list-style: none;
+    }
+
+    aside.sidebar li {
+        margin-bottom: 2px;
+    }
+
+    aside.sidebar a {
+        display: block;
+        padding: 9px 12px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        border-radius: 7px;
+        font-size: 0.93rem;
+        transition: background 0.15s, color 0.15s;
+    }
+
+    aside.sidebar a:hover {
+        background-color: var(--sidebar-hover);
+        color: var(--text-primary);
+    }
+
+    aside.sidebar a.active {
+        background-color: var(--accent-soft);
+        color: var(--accent);
+        font-weight: 600;
+    }
+
+    /* --- Content --- */
+    main.content {
+        flex: 1;
+        padding: 48px;
+        overflow-y: auto;
+        scroll-behavior: smooth;
+    }
+
+    .content-inner {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .content section {
+        display: none;
+        margin-bottom: 8px;
+        animation: fadeIn 0.2s ease;
+    }
+
+    .content section.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chapter-nav {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+    }
+
+    .chapter-nav a {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        padding: 8px 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        transition: background 0.15s, color 0.15s;
+    }
+
+    .chapter-nav a:hover {
+        background-color: var(--sidebar-hover);
+        color: var(--accent);
+    }
+
+    .chapter-nav .spacer {
+        flex: 1;
+    }
+
+    .content h1 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 2.1rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 14px;
+    }
+
+    .content h2 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 1.4rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-top: 8px;
+        margin-bottom: 14px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .content p {
+        line-height: 1.65;
+        margin-bottom: 14px;
+        color: var(--text-secondary);
+    }
+
+    .content ul {
+        margin-bottom: 14px;
+        padding-left: 20px;
+        color: var(--text-secondary);
+        line-height: 1.65;
+    }
+
+    .content strong {
+        color: var(--text-primary);
+    }
+
+    .intro-lede {
+        font-size: 1.05rem;
+        color: var(--text-secondary);
+    }
+
+    .faq-item {
+        background-color: var(--bg-elevated);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 18px 20px;
+    }
+
+    .faq-item p { margin-bottom: 0; }
+    .faq-item p + p { margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<header class="top-bar">
+    <div class="brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6.5A2.5 2.5 0 0 0 4 21.5v-17Z"/>
+            <path d="M4 17.5A2.5 2.5 0 0 1 6.5 15H20"/>
+        </svg>
+        <span class="brand-name">Manual</span>
+        <div class="divider"></div>
+        <div class="tool-badge">
+            <span class="tool-label">Documentation for</span>
+            <span class="tool-name">Kconfig Explorer</span>
+        </div>
+    </div>
+    <div class="right-controls">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle color theme" title="Toggle light / dark mode">
+            <svg id="themeIcon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.742 13.045a8.088 8.088 0 0 1-2.077.271c-2.135 0-4.14-.83-5.646-2.336-1.507-1.507-2.336-3.512-2.336-5.646 0-.693.09-1.376.271-2.077a.5.5 0 0 0-.633-.61A9.5 9.5 0 1 0 21.352 13.68a.5.5 0 0 0-.61-.635Z"/>
+            </svg>
+        </button>
+    </div>
+</header>
+
+<div class="main-container">
+
+    <aside class="sidebar">
+        <h3>Chapters</h3>
+        <ul>
+            <li><a href="#introduction">1. Introduction</a></li>
+            <li><a href="#tool-one">2. User Interface</a></li>
+            <li><a href="#tool-two">2.1 Input controls (top bar)</a></li>
+            <li><a href="#three-tabs">2.2 The three tabs</a></li>
+            <li><a href="#search-box">2.3 Search box</a></li>
+            <li><a href="#details">2.4 Details panel</a></li>
+            <li><a href="#parsing-rules">3. Parsing rules</a></li>
+            <li><a href="#caveat">4. Caveat worth knowing</a></li>
+            <li><a href="#faq">5. FAQ &amp; Help</a></li>
+        </ul>
+    </aside>
+
+    <main class="content">
+        <div class="content-inner">
+
+            <section id="introduction">
+                <h1>Kconfig Explorer — User Guide</h1>
+                <p class="intro-lede">Welcome to the official documentation for Kconfig Explorer. Here you'll find explanations and step-by-step instructions for getting the most out of the tool.</p>
+                <p>Use the navigation on the left to jump straight to any chapter or tool.</p>
+		<br>
+
+		<h2>What the tool is for</h2>
+		<p>Zephyr and nRF Connect SDK (NCS) projects generate a merged build/zephyr/.config file containing thousands of CONFIG_* (and, in sysbuild multi-image builds, SB_CONFIG_*) symbols. That file is flat text, hard to skim, and impossible to search visually. This tool loads it entirely client-side (nothing uploaded anywhere) and turns it into a browsable, searchable UI — useful for debugging build issues, comparing configurations, auditing what's enabled in a board/app combo, or just learning what a given sample turned on.</p>
+
+                <div class="chapter-nav">
+                    <span class="spacer"></span>
+                    <a href="#tool-one">Next: 2. User Interface →</a>
+                </div>
+            </section>
+
+            <section id="tool-one">
+                <h2>2. User Interface</h2>
+                <p>The Kconfig Explorer user interface is your central starting view.</p>
+
+		<img src="images/UserInterface.jpg">
+
+                <div class="chapter-nav">
+                    <a href="#introduction">← 1. Introduction</a>
+                    <a href="#tool-two">Next: 2.1 Input controls (top bar) →</a>
+                </div>
+
+            </section>
+
+            <section id="tool-two">
+
+		<h2>2.1 Input controls (top bar)</h2>
+		<img src="images/topBar.jpg">
+                <ul>
+                    <li><strong>Open button (file picker)</strong> — loads any .config or plain-text file with CONFIG_X=value lines. Also supports drag-and-drop anywhere on the page.</li>
+                    <li><strong>"Try a sample" button</strong> — loads a small built-in example .config so you can explore the UI immediately without a real build directory.</li>
+                    <li><strong>Clear button</strong> — appears once a file is loaded; resets the view.</li>
+                    <li><strong>File name label</strong> — shows which file is currently loaded.</li>
+                    <li><strong>Stats bar</strong> — summary counts (e.g. total symbols, how many are enabled) once a file is parsed.</li>
+                </ul>
+
+                <div class="chapter-nav">
+                    <a href="#tool-one">← 2. User Interface</a>
+                    <a href="#three-tabs">Next: 2.2 The three tabs →</a>
+                </div>
+            </section>
+
+
+
+            <section id="three-tabs">
+
+		<h3>2.2 The three tabs</h3>
+		<img src="images/threeTabs.jpg">
+		<ul>
+		    <li><strong>Tree</strong> — symbol names are split on _ after the CONFIG_/SB_CONFIG_ prefix and nested into a folder-style hierarchy (e.g. BT → PERIPHERAL, GATT → CLIENT, DYNAMIC_DB). This mirrors Kconfig's menu structure closely for common cases, letting you drill into a subsystem (like BT_* or LOG_*) the way you would in menuconfig, purely from naming conventions — no need to parse actual Kconfig source files. If the file has both CONFIG_ and SB_CONFIG_ symbols (common in sysbuild output), the tree splits into two top-level groups so the namespaces don't mix.</li>
+                    <li><strong>Enabled (=y)</strong> — a flat, searchable list of every boolean symbol turned on. Handy for quickly answering "what features does this build actually have enabled?"
+                    <ul>
+                        <li><strong>"Top-level symbols only" checkbox</strong> — narrows the list to symbols with no further _ after the prefix (e.g. CONFIG_BT, SB_CONFIG_MCUBOOT), hiding all the finer sub-options (CONFIG_BT_PERIPHERAL, etc.) for a higher-level overview.</li>
+                        <li><strong>"Export list (.txt)" button</strong> — downloads the currently-filtered enabled list as a text file, useful for diffing against another build or pasting into a bug report.</li>
+                   </ul>
+		   <li><strong>All symbols</strong> — every parsed symbol (booleans, strings, numbers, and explicitly-unset # CONFIG_X is not set entries) in one sortable table.
+		   <ul>
+                       <li><strong>Sort buttons: Name, Value, Line #</strong> — reorder the table by symbol name, its value, or its position in the original file (useful for spotting where in the file a setting came from).</li>
+		   </ul>
+                </ul>
+
+                <div class="chapter-nav">
+                    <a href="#tool-two">← 2.1 Input controls (top bar)</a>
+                    <a href="#search-box">Next: 2.3 Search box →</a>
+                </div>
+            </section>
+
+	    <section id="search-box">
+
+                <h3>2.3 Search box (applies to whichever tab is active)</h3>
+		<img src="images/searchBox.jpg">
+		<p>Filters symbols by substring match (e.g. typing BT_PERIPHERAL) and highlights matches directly in the tree view. An × button clears the filter.</p>
+
+                <div class="chapter-nav">
+                    <a href="#three-tabs">← 2.2 The three tabs</a>
+                    <a href="#details">Next: 2.4 Details panel →</a>
+                </div>
+            </section>
+
+	    <section id="details">
+	
+		<h3>2.4 Details panel</h3>
+		<img src="images/details.jpg">
+		<p>Click any symbol (in any tab) to open a side panel showing:</p>
+		<ul>
+		    <li>Its current value</li>
+		    <li>Its inferred type (bool / string / int/hex)</p)
+		    <li> Whether it was explicitly set (=y) or explicitly unset (# CONFIG_X is not set — Kconfig's convention for "no")</li>
+                    <li>The original raw line from the file (with line number)</li>
+                </ul>
+		<p>This is useful for disambiguating things like whether a symbol is absent from the file (never touched) versus explicitly disabled.</p>
+
+                <div class="chapter-nav">
+                    <a href="#search-box">← 2.3 Search box</a>
+                    <a href="#parsing-rules">Next: 3. Parsing rules →</a>
+                </div>
+            </section>
+
+            <section id="parsing-rules">
+                <h3>3. Parsing rules (what it recognizes)</h3>
+                <ul>
+                    <li>CONFIG_NAME=y / =n → boolean</li>
+                    <li>CONFIG_NAME="string" → string (quotes stripped, escapes unescaped)</li>
+                    <li>CONFIG_NAME=123 / =0x1F → number</li>
+                    <li># CONFIG_NAME is not set → explicitly-unset boolean</li> 
+                    <li>Everything else (comments, blank lines, unrelated prefixes) is ignored</li>
+                </ul>
+                <div class="chapter-nav">
+                    <a href="#details">← 2.4 Details panel</a>
+                    <a href="#caveat">Next: Caveat woth knowing →</a>
+                </div>
+            </section>
+
+            <section id="caveat">
+		<h3>4. Caveat worth knowing</h3>
+                <p>The tree grouping is purely string-splitting on _ — it doesn't parse actual Kconfig menu definitions, so occasionally a group boundary won't match the "official" menuconfig structure. For well-known subsystems (BT, LOG, etc.) it lines up well.</p>
+
+                <div class="chapter-nav">
+                    <a href="#parsing-rules">← 3. Parsing rules</a>
+                    <a href="#faq">Next: FAQ &amp; Help →</a>
+                </div>
+            </section>		
+
+            <section id="faq">
+                <h2>5. FAQ &amp; Help</h2>
+                <div class="faq-item">
+                    <p><strong>Q: What should I do if a tool won't load?</strong></p>
+                    <p>A: First try clearing your browser cache and reloading the page.</p>
+                </div>
+                <div class="chapter-nav">
+                    <a href="#caveat">← 4. Caveat worth knowing</a>
+                    <span class="spacer"></span>
+                </div>
+            </section>
+
+
+
+
+
+
+
+
+
+        </div>
+    </main>
+
+</div>
+
+<script>
+    (function () {
+        var moonIcon = '<path d="M20.742 13.045a8.088 8.088 0 0 1-2.077.271c-2.135 0-4.14-.83-5.646-2.336-1.507-1.507-2.336-3.512-2.336-5.646 0-.693.09-1.376.271-2.077a.5.5 0 0 0-.633-.61A9.5 9.5 0 1 0 21.352 13.68a.5.5 0 0 0-.61-.635Z"/>';
+        var sunIcon = '<path d="M12 4.5a1 1 0 0 1-1-1v-1a1 1 0 1 1 2 0v1a1 1 0 0 1-1 1Zm0 15a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1Zm7.5-7.5a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2h-1a1 1 0 0 1-1-1Zm-15 0a1 1 0 0 1-1 1h-1a1 1 0 1 1 0-2h1a1 1 0 0 1 1 1Zm13.02-5.52a1 1 0 0 1 0-1.42l.71-.7a1 1 0 1 1 1.41 1.41l-.7.71a1 1 0 0 1-1.42 0Zm-11.04 11.04a1 1 0 0 1 0 1.42l-.71.7a1 1 0 1 1-1.41-1.41l.7-.71a1 1 0 0 1 1.42 0Zm11.04 0a1 1 0 0 1 1.42 0l.7.71a1 1 0 1 1-1.41 1.41l-.71-.7a1 1 0 0 1 0-1.42ZM6.48 5.98a1 1 0 0 1-1.42 0l-.7-.71A1 1 0 1 1 5.77 3.86l.71.7a1 1 0 0 1 0 1.42ZM12 7.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Z"/>';
+
+        var root = document.documentElement;
+        var toggleBtn = document.getElementById('themeToggle');
+        var iconEl = document.getElementById('themeIcon');
+
+        function render(theme) {
+            iconEl.innerHTML = theme === 'dark' ? moonIcon : sunIcon;
+        }
+
+        render(root.getAttribute('data-theme'));
+
+        toggleBtn.addEventListener('click', function () {
+            var current = root.getAttribute('data-theme');
+            var next = current === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            render(next);
+        });
+    })();
+
+    (function () {
+        var sections = document.querySelectorAll('.content section');
+        var navLinks = document.querySelectorAll('a[href^="#"]');
+        var contentEl = document.querySelector('main.content');
+        var defaultChapter = 'introduction';
+
+        function showChapter(id) {
+            var found = false;
+            sections.forEach(function (section) {
+                if (section.id === id) {
+                    section.classList.add('active');
+                    found = true;
+                } else {
+                    section.classList.remove('active');
+                }
+            });
+            if (!found) {
+                document.getElementById(defaultChapter).classList.add('active');
+                id = defaultChapter;
+            }
+
+            navLinks.forEach(function (link) {
+                var isSidebarLink = link.closest('aside.sidebar') !== null;
+                if (isSidebarLink) {
+                    link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+                }
+            });
+
+            contentEl.scrollTop = 0;
+        }
+
+        navLinks.forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                var id = link.getAttribute('href').slice(1);
+                window.location.hash = id;
+                showChapter(id);
+            });
+        });
+
+        window.addEventListener('hashchange', function () {
+            var id = window.location.hash.slice(1) || defaultChapter;
+            showChapter(id);
+        });
+
+        var initialId = window.location.hash.slice(1) || defaultChapter;
+        showChapter(initialId);
+    })();
+</script>
+
+</body>
+</html>
