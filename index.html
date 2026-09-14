@@ -93,6 +93,12 @@
             overflow: hidden;
         }
 
+        .card-main-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
         .link-card:hover {
             background-color: var(--card-hover);
             border-color: #404050;
@@ -158,6 +164,30 @@
             font-weight: 300;
         }
 
+        .manual-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.35rem 0.7rem;
+            width: fit-content;
+            transition: all 0.2s ease;
+            position: relative;
+            z-index: 3;
+        }
+
+        .manual-link:hover {
+            color: var(--accent-color);
+            border-color: #404050;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
         footer {
             text-align: center;
             margin-top: 4rem;
@@ -177,48 +207,63 @@
     <main>
         <div class="link-grid">
             <!-- Link Item 1 -->
-            <a href="kconfigExplorer/index.html" class="link-card">
-                <div class="card-content">
-                    <h2>Kconfig Explorer <span>&rarr;</span></h2>
-                    <p>A small, static, client-side tool for browsing a Zephyr/nRF Connect SDK `.config` file </p>
-                </div>
-            </a>
+            <div class="link-card">
+                <a href="kconfigExplorer/index.html" class="card-main-link">
+                    <div class="card-content">
+                        <h2>Kconfig Explorer <span>&rarr;</span></h2>
+                        <p>A small, static, client-side tool for browsing a Zephyr/nRF Connect SDK `.config` file </p>
+                    </div>
+                </a>
+                <a href="kconfigExplorer/manual.html" class="manual-link">Manual &#128214;</a>
+            </div>
 
             <!-- Link Item 2 -->
-            <a href="textEditor/index.html" class="link-card coming-soon" aria-label="Serial AT Terminal — Coming Soon">
-		<span class="coming-soon-badge">Coming Soon</span>
-                <div class="card-content">
-                    <h2>Text Editor <span>&rarr;</span></h2>
-                    <p>Text Editor is a lightweight web-based code editor for creating, editing, and formatting C/C++ source files, with syntax highlighting, automatic indentation, and convenient file management. All files remain local on your device and are never uploaded to a server.</p>
-                </div>
-            </a>
+            <div class="link-card coming-soon" aria-label="Text Editor — Coming Soon">
+                <span class="coming-soon-badge">Coming Soon</span>
+                <a href="textEditor/index.html" class="card-main-link">
+                    <div class="card-content">
+                        <h2>Text Editor <span>&rarr;</span></h2>
+                        <p>Text Editor is a lightweight web-based code editor for creating, editing, and formatting C/C++ source files, with syntax highlighting, automatic indentation, and convenient file management. All files remain local on your device and are never uploaded to a server.</p>
+                    </div>
+                </a>
+                <a href="textEditor/manual.html" class="manual-link">Manual &#128214;</a>
+            </div>
 
             <!-- Link Item 3 -->
-            <a href="intelHexViewer/index.html" class="link-card coming-soon" aria-label="Serial AT Terminal — Coming Soon">
-		<span class="coming-soon-badge">Coming Soon</span>
-                <div class="card-content">
-                    <h2>Intel Hex Viewer <span>&rarr;</span></h2>
-                    <p>Byte-level visualization of Intel HEX files. Each pixel is one byte. Regions without data are highlighted. MCUboot image headers are detected, highlighted and interpreted.</p>
-                </div>
-            </a>
+            <div class="link-card coming-soon" aria-label="Intel Hex Viewer — Coming Soon">
+                <span class="coming-soon-badge">Coming Soon</span>
+                <a href="intelHexViewer/index.html" class="card-main-link">
+                    <div class="card-content">
+                        <h2>Intel Hex Viewer <span>&rarr;</span></h2>
+                        <p>Byte-level visualization of Intel HEX files. Each pixel is one byte. Regions without data are highlighted. MCUboot image headers are detected, highlighted and interpreted.</p>
+                    </div>
+                </a>
+                <a href="intelHexViewer/manual.html" class="manual-link">Manual &#128214;</a>
+            </div>
 
             <!-- Link Item 4 -->
-            <a href="serialATTerminal/index.html" class="link-card coming-soon" aria-label="Serial AT Terminal — Coming Soon">
+            <div class="link-card coming-soon" aria-label="Serial AT Terminal — Coming Soon">
                 <span class="coming-soon-badge">Coming Soon</span>
-                <div class="card-content">
-                    <h2>Serial AT Terminal <span>&rarr;</span></h2>
-                    <p>This web-based serial terminal connects to serial devices in Chrome or Edge and supports sending and monitoring AT commands. Custom AT command sets can be edited, saved, and loaded for later use.</p>
-                </div>
-            </a>
+                <a href="serialATTerminal/index.html" class="card-main-link">
+                    <div class="card-content">
+                        <h2>Serial AT Terminal <span>&rarr;</span></h2>
+                        <p>This web-based serial terminal connects to serial devices in Chrome or Edge and supports sending and monitoring AT commands. Custom AT command sets can be edited, saved, and loaded for later use.</p>
+                    </div>
+                </a>
+                <a href="serialATTerminal/manual.html" class="manual-link">Manual &#128214;</a>
+            </div>
 
             <!-- Link Item 5 -->
-            <a href="bleExplorer/index.html" class="link-card coming-soon" aria-label="BLE Explorer — Coming Soon">
+            <div class="link-card coming-soon" aria-label="BLE Explorer — Coming Soon">
                 <span class="coming-soon-badge">Coming Soon</span>
-                <div class="card-content">
-                    <h2>BLE Explorer <span>&rarr;</span></h2>
-                    <p>BLE Explorer is a browser-based tool for discovering, connecting to, and debugging Bluetooth Low Energy devices. It uses the computer’s built-in Bluetooth interface, so no external Bluetooth dongle or development kit is required. It enables users to inspect GATT services and characteristics and perform read and write operations directly from the browser. </p>
-                </div>
-            </a>
+                <a href="bleExplorer/index.html" class="card-main-link">
+                    <div class="card-content">
+                        <h2>BLE Explorer <span>&rarr;</span></h2>
+                        <p>BLE Explorer is a browser-based tool for discovering, connecting to, and debugging Bluetooth Low Energy devices. It uses the computer’s built-in Bluetooth interface, so no external Bluetooth dongle or development kit is required. It enables users to inspect GATT services and characteristics and perform read and write operations directly from the browser. </p>
+                    </div>
+                </a>
+                <a href="bleExplorer/manual.html" class="manual-link">Manual &#128214;</a>
+            </div>
 
 
             <!-- Link Item - more to come -->
