@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual — User Guide</title>
+<style>
+    :root {
+        --bg: #12141c;
+        --bg-elevated: #181b26;
+        --border: #262a37;
+        --text-primary: #e7e9ee;
+        --text-secondary: #9198ac;
+        --text-muted: #6b7286;
+        --accent: #e3a33d;
+        --accent-soft: rgba(227, 163, 61, 0.14);
+        --sidebar-hover: #1f2330;
+        --shadow: rgba(0, 0, 0, 0.35);
+    }
+
+    html[data-theme="light"] {
+        --bg: #faf9f7;
+        --bg-elevated: #ffffff;
+        --border: #e6e2da;
+        --text-primary: #211f1c;
+        --text-secondary: #5c584f;
+        --text-muted: #8a8578;
+        --accent: #b0700f;
+        --accent-soft: rgba(176, 112, 15, 0.10);
+        --sidebar-hover: #f1eee7;
+        --shadow: rgba(0, 0, 0, 0.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--bg);
+        color: var(--text-primary);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+        transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* --- Top bar --- */
+    header.top-bar {
+        height: 64px;
+        background-color: var(--bg-elevated);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 28px;
+        flex-shrink: 0;
+    }
+
+    .top-bar .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .top-bar .brand svg {
+        width: 22px;
+        height: 22px;
+        color: var(--accent);
+        flex-shrink: 0;
+    }
+
+    .top-bar .brand-name {
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: var(--text-primary);
+        letter-spacing: -0.01em;
+    }
+
+    .top-bar .divider {
+        width: 1px;
+        height: 22px;
+        background-color: var(--border);
+        margin: 0 16px;
+    }
+
+    .top-bar .tool-badge {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.15;
+    }
+
+    .top-bar .tool-badge .tool-label {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+    }
+
+    .top-bar .tool-badge .tool-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--accent);
+    }
+
+    .top-bar .right-controls {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .theme-toggle {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background-color: transparent;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.2s, color 0.2s;
+    }
+
+    .theme-toggle:hover {
+        background-color: var(--sidebar-hover);
+        color: var(--accent);
+    }
+
+    .theme-toggle svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* --- Main layout --- */
+    .main-container {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    aside.sidebar {
+        width: 272px;
+        background-color: var(--bg-elevated);
+        border-right: 1px solid var(--border);
+        padding: 28px 14px;
+        overflow-y: auto;
+        flex-shrink: 0;
+    }
+
+    aside.sidebar h3 {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+        padding-left: 10px;
+        font-weight: 500;
+    }
+
+    aside.sidebar ul {
+        list-style: none;
+    }
+
+    aside.sidebar li {
+        margin-bottom: 2px;
+    }
+
+    aside.sidebar a {
+        display: block;
+        padding: 9px 12px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        border-radius: 7px;
+        font-size: 0.93rem;
+        transition: background 0.15s, color 0.15s;
+    }
+
+    aside.sidebar a:hover {
+        background-color: var(--sidebar-hover);
+        color: var(--text-primary);
+    }
+
+    aside.sidebar a.active {
+        background-color: var(--accent-soft);
+        color: var(--accent);
+        font-weight: 600;
+    }
+
+    /* --- Content --- */
+    main.content {
+        flex: 1;
+        padding: 48px;
+        overflow-y: auto;
+        scroll-behavior: smooth;
+    }
+
+    .content-inner {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .content section {
+        display: none;
+        margin-bottom: 8px;
+        animation: fadeIn 0.2s ease;
+    }
+
+    .content section.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chapter-nav {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+    }
+
+    .chapter-nav a {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        padding: 8px 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        transition: background 0.15s, color 0.15s;
+    }
+
+    .chapter-nav a:hover {
+        background-color: var(--sidebar-hover);
+        color: var(--accent);
+    }
+
+    .chapter-nav .spacer {
+        flex: 1;
+    }
+
+    .content h1 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 2.1rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 14px;
+    }
+
+    .content h2 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 1.4rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-top: 8px;
+        margin-bottom: 14px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .content p {
+        line-height: 1.65;
+        margin-bottom: 14px;
+        color: var(--text-secondary);
+    }
+
+    .content ul {
+        margin-bottom: 14px;
+        padding-left: 20px;
+        color: var(--text-secondary);
+        line-height: 1.65;
+    }
+
+    .content strong {
+        color: var(--text-primary);
+    }
+
+    .intro-lede {
+        font-size: 1.05rem;
+        color: var(--text-secondary);
+    }
+
+    .faq-item {
+        background-color: var(--bg-elevated);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 18px 20px;
+    }
+
+    .faq-item p { margin-bottom: 0; }
+    .faq-item p + p { margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<header class="top-bar">
+    <div class="brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6.5A2.5 2.5 0 0 0 4 21.5v-17Z"/>
+            <path d="M4 17.5A2.5 2.5 0 0 1 6.5 15H20"/>
+        </svg>
+        <span class="brand-name">Manual</span>
+        <div class="divider"></div>
+        <div class="tool-badge">
+            <span class="tool-label">Documentation for</span>
+            <span class="tool-name">Text Editor</span>
+        </div>
+    </div>
+    <div class="right-controls">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle color theme" title="Toggle light / dark mode">
+            <svg id="themeIcon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.742 13.045a8.088 8.088 0 0 1-2.077.271c-2.135 0-4.14-.83-5.646-2.336-1.507-1.507-2.336-3.512-2.336-5.646 0-.693.09-1.376.271-2.077a.5.5 0 0 0-.633-.61A9.5 9.5 0 1 0 21.352 13.68a.5.5 0 0 0-.61-.635Z"/>
+            </svg>
+        </button>
+    </div>
+</header>
+
+<div class="main-container">
+
+    <aside class="sidebar">
+        <h3>Chapters</h3>
+        <ul>
+            <li><a href="#introduction">1. Introduction</a></li>
+            <li><a href="#getting-started">2. Getting started</a></li>
+            <li><a href="#interface">3. The interface</a></li>
+            <li><a href="#files">4. Working with files</a></li>
+            <li><a href="#splitview">5. Split view</a></li>
+            <li><a href="#edit">6. Editing</a></li>
+            <li><a href="#search">7. Search & replace</a></li>
+            <li><a href="#appearance">8. Appearance</a></li>
+            <li><a href="#shortcut">9. Keyboard shortcuts</a></li>
+            <li><a href="#tips">10. Tips</a></li>
+            <li><a href="#limitation">11. Limitations</a></li>
+            <li><a href="#faq">12. FAQ &amp; Help</a></li>
+        </ul>
+    </aside>
+
+    <main class="content">
+        <div class="content-inner">
+
+            <section id="introduction">
+                <h1>Text Editor — User Guide</h1>
+                <p class="intro-lede">Welcome to the official documentation for Text Editor. Here you'll find explanations and step-by-step instructions for getting the most out of each tool.</p>
+                <p>Use the navigation on the left to jump straight to any chapter.</p>
+		<h2>What the tool is for</h2>
+                <p>A lightweight, browser-based source and text editor with tabs, split view, C/C++ syntax highlighting and formatting, and search & replace. No installation, no build step — it runs entirely as static HTML/CSS/JS.</p>
+                <p>This tool loads it entirely client-side (nothing uploaded anywhere).</p>
+                <div class="chapter-nav">
+                    <span class="spacer"></span>
+                    <a href="#getting-started">Next: 2. Getting started →</a>
+                </div>
+           </section>
+
+           <section id="getting-started">
+                <h1>2. Getting started</h1>
+                <h3>2.1 Browser support</h3>
+		<p class="intro-lede">The web app relies on certain browser functionalities that are not supported by all browsers. Therefore, it can only run on browsers that provide the required features.</p>
+                <p>The following browsers are supported:</p>
+                <ul>
+                    <li>Google Chrome</li>
+                    <li>Microsoft Edge</li>
+                </ul>
+                <h3>2.2 First launch</h3>
+                <p>The app opens with one empty document, `Untitled-1.c`, ready to type into. New documents default to C so syntax highlighting and auto-indentation are active immediately — you can simply overwrite the extension when you save if you're writing something else.
+</p>
+                <div class="chapter-nav">
+                    <a href="#introduction">← 1. Introduction</a>
+                    <a href="#interface">Next: 3. The interface →</a>
+                </div>
+           </section>
+
+           <section id="interface">
+                <h1>3. The interface</h1>
+                <img src="images/interface.jpg">
+                <ul>
+                    <li><strong>Toolbar</strong> — file actions, formatting, split view, theme, search.</li>
+                    <li><strong>Tabs</strong> — one per open document; the small <strong>●</strong> dot marks unsaved changes.</li>
+                    <li><strong>Editor</strong> — line numbers on the left, syntax-highlighted code on the right.</li>
+                    <li><strong>Status bar</strong> — active file name, detected language, encoding, cursor position.</li>
+                </ul>
+                <div class="chapter-nav">
+                    <a href="#getting-started">← 2. Getting started</a>
+                    <a href="#files">Next: 4. Working with files →</a>
+                </div>
+           </section>
+
+           <section id="files">
+                <h1>4. Working with files</h1>
+                <img src="images/files.jpg">
+                <table>
+                    <tr>
+                        <th>Action</th>
+			<th>Toolbar button</th>
+			<th>Shortcut</th>
+			<th>Behavior</th>
+                    </tr>
+                    <tr>
+                        <td>New document</td>
+			<td><strong>New</strong></td>
+			<td>Ctrl/Cmd+N</td>
+			<td>Opens a new, empty `Untitled-N.c` tab</td>
+                    </tr>
+                    <tr>
+                        <td>Open a file</td>
+			<td><strong>Open</strong></td>
+			<td>Ctrl/Cmd+O</td>
+			<td>Opens a file picker; adds a tab</td>
+                    </tr>
+                    <tr>
+                        <td>Open a folder</td>
+			<td><strong>Open Folder</strong></td>
+			<td>-</td>
+			<td>Opens every file in a chosen folder, each in its own tab</td>
+                    </tr>
+                    <tr>
+                        <td>Save</td>
+			<td><strong>Save</strong></td>
+			<td>Ctrl/Cmd+S</td>
+			<td>Saves the active file. If it has no file handle yet, behaves like Save As</td>
+                    </tr>
+                    <tr>
+                        <td>Save As</td>
+			<td><strong>Save As</strong></td>
+			<td>Ctrl/Cmd+Shift+S</td>
+			<td>Prompts for a new name/location</td>
+                    </tr>
+                    <tr>
+                        <td>Close tab</td>
+			<td>tab's <strong>×</strong></td>
+			<td>Ctrl/Cmd+W</td>
+			<td>Closes the active tab (prompts if unsaved)</td>
+                    </tr>
+                </table>
+                <p><strong>Opening the same file twice:</strong> if a file is already open (matched by its path), the app activates the existing tab instead of opening a duplicate — even if that tab is in the other split-view column.</p>
+                <h3>4.1 Unsaved changes</h3>
+                <p>Closing a modified tab opens a dialog with three options:</p>
+                <ul>
+                    <li><strong>Save</strong> — writes the file, then closes the tab.</li>
+                    <li><strong>Close without saving</strong> — discards changes and closes the tab.</li>
+                    <li><strong>Cancel</strong> — keeps the tab open.</li>
+                </ul>
+                <p>The browser will also warn you if you try to close or reload the page while any tab has unsaved changes.</p>
+                <h3>4.2 Empty state</h3>
+                <p>Closing the last open tab in a column clears the editor and shows <strong>"No file opened."</strong> This is normal — use <strong>New</strong> or <strong>Open</strong> to start again.</p>
+                <div class="chapter-nav">
+                    <a href="#interface">← 3. The interface</a>
+                    <a href="#splitview">Next: 5. Split view →</a>
+                </div>
+            </section>
+
+            <section id="splitview">
+                <h1>5. Split view</h1>
+                <p class="intro-lede">Split view divides the editor into two independent columns, each with its own tabs, its own search panel, and its own editor. Use it to view or edit two files side by side — or the same file twice.</p>
+                <h3>5.1 Turning on / off</h3>
+                <ul>
+                    <li>Click <strong>Split</strong> in the toolbar, or press `Ctrl/Cmd+\`.</li>
+                    <li>Turning split off folds any files open in the right-hand column back into the left column. <strong>Nothing is closed — no changes are lost.</strong></li>
+                </ul>
+                <h3>5.2 Which column do actions apply to?</h3>
+                <p><strong>New</strong>, <strong>Open</strong>, <strong>Open Folder</strong>, <strong>Save</strong>, <strong>Save As</strong>, <strong>Search</strong>, and <strong>Format C</strong> all act on the <strong>focused column</strong> — the one you last clicked into. Click anywhere inside a column (its tab bar, its editor) to focus it before using the toolbar or a shortcut.</p>
+                <h3>5.3 Moving a file between columns</h3>
+                <p>Two ways to move a tab from one column to the other:</p>
+                <p>1. <strong>Move button</strong> — click the <strong>⇄</strong> icon on the tab (visible whenever split view is active).</p>
+                <p>2. <strong>Drag and drop</strong> — drag the tab and drop it onto the other column's tab bar.</p>
+                <br>
+                <p>Moving a tab activates it in its new column and focuses that column.</p>
+                <h3>5.4 Resizing the columns</h3>
+                <p>Drag the thin vertical divider between the two columns left or right to change their relative widths.</p>
+                <div class="chapter-nav">
+                    <a href="#files">← 4. Working with files</a>
+                    <a href="#edit">Next: 6. Editing →</a>
+                </div>
+            </section>
+
+            <section id="edit">
+                <h1>6. Editing</h1>
+		<h3>6.1 Basic editing</h3>
+		<p class="intro-lede">Type as you would in any text editor. `Tab` inserts four spaces (there is no tab-character indentation).</p>
+                <h3>6.2 C / C++ support </h3>
+                <p>When the active file's extension is one of `.c`, `.h`, `.cpp`, `.hpp`, `.cc` (etc.), the editor adds C/C++-aware behavior:</p>
+                <ul>
+                    <li><strong>Enter</strong continues at a sensible indentation level, and outdents automatically when the line you're completing is a closing `}`.</li>
+                    <li>Completing a block comment (typing the closing `*/`) triggers a lightweight auto-formatting pass.</li>
+                    <li><strong>Format C</strong> (button, or `Ctrl/Cmd+Shift+F`) re-indents the whole file based on brace nesting.</li>
+                </ul>
+                <p>The formatter is intentionally simple and dependency-free — it is <strong>not</strong> a full compiler-aware tool like `clang-format`. It:</p>
+                <ul>
+                    <li>Normalizes indentation from `{ }` nesting (4 spaces per level).</li>
+                    <li>Keeps preprocessor lines (`#include`, `#define`, …) at column 0.</li>
+                    <li>Never touches the contents of strings, comments, or preprocessor lines.</li>
+                </ul>
+                <br>
+                <h3>6.3 Syntax highlighting</h3>
+                <p>Highlighting covers C/C++ and several other common formats detected from the file extension: keywords, types, strings, comments, numbers, preprocessor directives, and function calls.</p>
+                <div class="chapter-nav">
+                    <a href="#splitview">← 5. Split view</a>
+                    <a href="#search">Next: 7. Search & replace →</a>
+                </div>
+            </section>
+
+            <section id="search">
+                <h1>7. Search & replace</h1>
+                <p>Open the search panel with the <strong>Search</strong> button or `Ctrl/Cmd+F`. It opens in the focused column and searches only that column's active document.</p>
+                <table>
+                    <tr>
+                        <th>Field / control</th>
+                        <th>Purpose</th>
+                    </tr>
+                    <tr>
+                        <td>Find</td>
+                        <td>The search term </td>
+                    </tr>
+                    <tr>
+                        <td>Replace</td>
+                        <td>Replacement text</td>
+                    </tr>
+                    <tr>
+                        <td>Previous / Next</td>
+                        <td>Jump between matches (or press `Enter` / `Shift+Enter` in the Find field)</td>
+                    </tr>
+                    <tr>
+                        <td>Replace</td>
+                        <td>Replace the current selection if it's a match, then jump to the next</td>
+                    </tr>
+                    <tr>
+                        <td>Replace All</td>
+                        <td>Replace every match in the document</td>
+                    </tr>
+                    <tr>
+                        <td>Case sensitive</td>
+                        <td>Match letter case exactly</td>
+                    </tr>
+                    <tr>
+                        <td>Whole word</td>
+                        <td>Only match whole words</td>
+                    </tr>
+                    <tr>
+                        <td>Regular expression</td>
+                        <td>Treat the Find term as a JavaScript regular expression</td>
+                    </tr>
+                    <tr>
+                        <td>Match counter</td>
+                        <td>Shows how many matches exist</td>
+                    </tr>
+                </table>
+                <p>Close the panel with the <strong>×</strong> button or `Escape`.</p>
+                <div class="chapter-nav">
+                    <a href="#edit">← 6. Editing</a>
+                    <a href="#appearance">Next: 8. Appearance →</a>
+                </div>
+            </section>
+
+            <section id="appearance">
+                <h1>8. Appearance</h1>
+                <ul>
+                    <li>Toggle <strong>dark / light theme</strong> with the moon icon (☾) in the toolbar. Your choice is remembered between sessions.</li>
+                    <li>The status bar always shows the active file's detected language and encoding (UTF-8).</li>
+                </ul>
+                <div class="chapter-nav">
+                    <a href="#search">← 7. Search & replace</a>
+                    <a href="#shortcut">Next: 9. Keyboard shortcuts →</a>
+                </div>
+            </section>
+
+            <section id="shortcut">
+                <h2>9. Keyboard shortcuts</h2>
+                <table>
+                    <tr>
+                        <th>Shortcut</th>
+                        <th>Action</th>
+                    </tr>
+                    <tr>
+                        <td>Ctrl/Cmd+N</td>
+                        <td>New document</td>
+                    </tr>
+                    <tr>
+                        <td>Ctrl/Cmd+O</td>
+                        <td>Open file</td>
+                    </tr>
+                    <tr>
+                        <td>Ctrl/Cmd+S</td>
+                        <td>Save</td>
+                    </tr>
+                    <tr>
+                        <td>Ctrl/Cmd+Shift+S</td>
+                        <td>Save As</td>
+                    </tr>
+                    <tr>
+                        <td>Ctrl/Cmd+F</td>
+                        <td>Open search</td>
+                    </tr>
+                    <tr>
+                        <td>Ctrl/Cmd+Shift+F</td>
+                        <td>Format C</td>
+                    </tr>
+                    <tr>
+                        <td>Ctrl/Cmd+\</td>
+                        <td>Toggle split view</td>
+                    </tr>
+                    <tr>
+                        <td>Ctrl/Cmd+W</td>
+                        <td>Close active tab</td>
+                    </tr>
+                    <tr>
+                        <td>Escape</td>
+                        <td>Close search panel, or dismiss the unsaved-changes dialog</td>
+                    </tr>
+                    <tr>
+                        <td>Tab (in editor)</td>
+                        <td>Insert four spaces</td>
+                    </tr>
+                </table>
+                <div class="chapter-nav">
+                    <a href="#appearance">← 8. Appearance</a>
+                    <a href="#tips">Next: 10. Tips →</a>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h1>10. Tips</h1>
+                <ul>
+                    <li><strong>Comparing two files:</strong> turn on split view, open one file in each column, and drag the divider to size them evenly.</li>
+                    <li><strong>The same file, twice:</strong> opening a file that's already open elsewhere switches you to that existing tab rather than creating a second copy — even across columns. There's currently no way to view the same file in both columns at once.</li>
+                    <li><strong>Losing your place:</strong> the app warns before you close or reload the browser tab if anything is unsaved — but it's still good practice to save often, especially before using <strong>Open Folder</strong> on a large directory.</li>
+                    <li><strong>Format C</strong> only affects `.c`/`.cpp`-recognized files; running it on other file types does nothing.
+</li>
+                </ul>
+                <div class="chapter-nav">
+                    <a href="#shortcut">← 9. Keyboard shortcuts</a>
+                    <a href="#limitation">Next: 11. Limitations →</a>
+                </div>
+            </section>
+
+            <section id="limitation">
+                <h1>11. Limitations</h1>
+		<ul>
+                    <li>The C/C++ formatter is indentation-only; it does not reflow long lines, align pointers, or apply a style guide.</li>
+                    <li>Regular-expression search uses standard JavaScript regex syntax.</li>
+                    <li>On browsers without the File System Access API, "Save" always downloads a new file rather than overwriting the original on disk.</li>
+                </ul>
+                <div class="chapter-nav">
+                    <a href="#tips">← 10. Tips</a>
+                    <a href="#faq">Next: 12. FAQ &amp; Help →</a>
+                </div>
+            </section>
+
+            <section id="faq">
+                <h1>5. FAQ &amp; Help</h1>
+                <div class="faq-item">
+                    <p><strong>Q: What should I do if a tool won't load?</strong></p>
+                    <p>A: First try clearing your browser cache and reloading the page.</p>
+                </div>
+                <div class="chapter-nav">
+                    <a href="#limitation">← 11. Limitations</a>
+                    <span class="spacer"></span>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+</div>
+
+<script>
+    (function () {
+        var moonIcon = '<path d="M20.742 13.045a8.088 8.088 0 0 1-2.077.271c-2.135 0-4.14-.83-5.646-2.336-1.507-1.507-2.336-3.512-2.336-5.646 0-.693.09-1.376.271-2.077a.5.5 0 0 0-.633-.61A9.5 9.5 0 1 0 21.352 13.68a.5.5 0 0 0-.61-.635Z"/>';
+        var sunIcon = '<path d="M12 4.5a1 1 0 0 1-1-1v-1a1 1 0 1 1 2 0v1a1 1 0 0 1-1 1Zm0 15a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1Zm7.5-7.5a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2h-1a1 1 0 0 1-1-1Zm-15 0a1 1 0 0 1-1 1h-1a1 1 0 1 1 0-2h1a1 1 0 0 1 1 1Zm13.02-5.52a1 1 0 0 1 0-1.42l.71-.7a1 1 0 1 1 1.41 1.41l-.7.71a1 1 0 0 1-1.42 0Zm-11.04 11.04a1 1 0 0 1 0 1.42l-.71.7a1 1 0 1 1-1.41-1.41l.7-.71a1 1 0 0 1 1.42 0Zm11.04 0a1 1 0 0 1 1.42 0l.7.71a1 1 0 1 1-1.41 1.41l-.71-.7a1 1 0 0 1 0-1.42ZM6.48 5.98a1 1 0 0 1-1.42 0l-.7-.71A1 1 0 1 1 5.77 3.86l.71.7a1 1 0 0 1 0 1.42ZM12 7.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Z"/>';
+
+        var root = document.documentElement;
+        var toggleBtn = document.getElementById('themeToggle');
+        var iconEl = document.getElementById('themeIcon');
+
+        function render(theme) {
+            iconEl.innerHTML = theme === 'dark' ? moonIcon : sunIcon;
+        }
+
+        render(root.getAttribute('data-theme'));
+
+        toggleBtn.addEventListener('click', function () {
+            var current = root.getAttribute('data-theme');
+            var next = current === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            render(next);
+        });
+    })();
+
+    (function () {
+        var sections = document.querySelectorAll('.content section');
+        var navLinks = document.querySelectorAll('a[href^="#"]');
+        var contentEl = document.querySelector('main.content');
+        var defaultChapter = 'introduction';
+
+        function showChapter(id) {
+            var found = false;
+            sections.forEach(function (section) {
+                if (section.id === id) {
+                    section.classList.add('active');
+                    found = true;
+                } else {
+                    section.classList.remove('active');
+                }
+            });
+            if (!found) {
+                document.getElementById(defaultChapter).classList.add('active');
+                id = defaultChapter;
+            }
+
+            navLinks.forEach(function (link) {
+                var isSidebarLink = link.closest('aside.sidebar') !== null;
+                if (isSidebarLink) {
+                    link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+                }
+            });
+
+            contentEl.scrollTop = 0;
+        }
+
+        navLinks.forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                var id = link.getAttribute('href').slice(1);
+                window.location.hash = id;
+                showChapter(id);
+            });
+        });
+
+        window.addEventListener('hashchange', function () {
+            var id = window.location.hash.slice(1) || defaultChapter;
+            showChapter(id);
+        });
+
+        var initialId = window.location.hash.slice(1) || defaultChapter;
+        showChapter(initialId);
+    })();
+</script>
+
+</body>
+</html>
