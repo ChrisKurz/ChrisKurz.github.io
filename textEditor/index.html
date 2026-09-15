@@ -1,279 +1,65 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coming Soon</title>
-    <!-- Google Fonts for professional typography -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bg-color: #050507;
-            --card-bg: rgba(20, 20, 25, 0.75);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --text-primary: #f4f4f6;
-            --text-secondary: #9ca3af;
-            --accent-color: #ffffff;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow-x: hidden;
-            padding: 1.5rem;
-        }
-
-        /* Background Image with Dark Overlay */
-        .bg-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            /* Using a high-quality abstract dark tech background from Unsplash */
-            background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop') no-repeat center center;
-            background-size: cover;
-        }
-
-        .bg-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(5, 5, 7, 0.85); /* Darkens the image to fit the black style */
-            backdrop-filter: blur(8px); /* Soft glassmorphic blur */
-            z-index: 2;
-        }
-
-        /* Main Content Box */
-        .content-card {
-            position: relative;
-            z-index: 3;
-            max-width: 600px;
-            width: 100%;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 3rem 2.5rem;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(12px);
-        }
-
-        .badge {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-color);
-            padding: 0.35rem 0.85rem;
-            border-radius: 50px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 600;
-            letter-spacing: -0.025em;
-            margin-bottom: 1rem;
-            color: var(--accent-color);
-        }
-
-        p {
-            color: var(--text-secondary);
-            font-size: 1rem;
-            font-weight: 300;
-            line-height: 1.6;
-            margin-bottom: 2.5rem;
-        }
-
-        /* Countdown Grid */
-        .countdown {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .countdown-item {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--border-color);
-            padding: 1rem 0.5rem;
-            border-radius: 10px;
-        }
-
-        .countdown-number {
-            font-size: 1.75rem;
-            font-weight: 600;
-            color: var(--accent-color);
-            margin-bottom: 0.2rem;
-        }
-
-        .countdown-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-secondary);
-        }
-
-        /* Notify Form */
-        .notify-form {
-            display: flex;
-            gap: 0.5rem;
-            max-width: 450px;
-            margin: 0 auto;
-        }
-
-        .notify-form input {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 0.9rem;
-            outline: none;
-            transition: border-color 0.2s ease;
-        }
-
-        .notify-form input:focus {
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .notify-form input::placeholder {
-            color: #6b7280;
-        }
-
-        .notify-form button {
-            background: var(--accent-color);
-            color: var(--bg-color);
-            border: none;
-            padding: 0.75rem 1.25rem;
-            border-radius: 8px;
-            font-family: inherit;
-            font-weight: 500;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: opacity 0.2s ease, transform 0.1s ease;
-        }
-
-        .notify-form button:hover {
-            opacity: 0.9;
-        }
-
-        .notify-form button:active {
-            transform: scale(0.98);
-        }
-
-        @media (max-width: 540px) {
-            .content-card {
-                padding: 2rem 1.5rem;
-            }
-            h1 {
-                font-size: 2rem;
-            }
-            .countdown {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .notify-form {
-                flex-direction: column;
-            }
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Text Editor</title>
+  <link rel="stylesheet" href="css/editor.css">
 </head>
 <body>
+  <header class="topbar">
+    <div class="brand" aria-label="Text Editor">
+        <svg class="brand-logo" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M7 3.5h13l6 6V28.5H7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M20 3.5v7h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M12 15l-3 3 3 3M20 15l3 3-3 3M17.5 14l-3 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Text Editor</span>
+      </div>
+    <nav class="menu">
+      <button data-action="new" title="Ctrl+N">New</button>
+      <button data-action="open" title="Ctrl+O">Open</button>
+      <button data-action="open-folder">Open Folder</button>
+      <button data-action="save" title="Ctrl+S">Save</button>
+      <button data-action="save-as">Save As</button>
+      <button data-action="format" title="Ctrl+Shift+F">Format C</button>
+      <button data-action="split" id="splitButton" title="Ctrl+\">⬛⬜ Split</button>
+    </nav>
+    <div class="top-spacer"></div>
+    <button id="themeButton" class="icon-button" title="Toggle theme">☾</button>
+    <button data-action="search" class="search-button" title="Ctrl+F">⌕ Search</button>
+  </header>
 
-    <!-- Background Image & Overlay Layers -->
-    <div class="bg-container"></div>
-    <div class="bg-overlay"></div>
-
-    <!-- Content Container -->
-    <div class="content-card">
-        <img src="screenshot.jpg" alt="screenshot">
-        <span class="badge">Launching Soon</span>
-        <h1>Something Great is on the Way</h1>
-        <p>We are currently putting the final touches on this tool. Stay tuned for a completely redefined experience.</p>
-
-        <!-- Live Countdown Timer (Target date is set 30 days into the future automatically) -->
-        <div class="countdown" id="countdown">
-            <div class="countdown-item">
-                <div class="countdown-number" id="days">00</div>
-                <div class="countdown-label">Days</div>
-            </div>
-            <div class="countdown-item">
-                <div class="countdown-number" id="hours">00</div>
-                <div class="countdown-label">Hours</div>
-            </div>
-            <div class="countdown-item">
-                <div class="countdown-number" id="minutes">00</div>
-                <div class="countdown-label">Minutes</div>
-            </div>
-            <div class="countdown-item">
-                <div class="countdown-number" id="seconds">00</div>
-                <div class="countdown-label">Seconds</div>
-            </div>
-        </div>
-
-        <!-- Optional Email Notification Form -->
-	<form class="notify-form" action="https://api.web3forms.com/submit" method="POST">
-	    <input type="hidden" name="access_key" value="07f9c11f-0d07-4cfa-9a5f-ec2b5d2c75f9">
-            <input type="text" placeholder="Enter your name here" name="name" required>
-            <input type="email" placeholder="Enter your email address" name="email" required>
-            <button type="submit">Notify Me</button>
-        </form>
-
+  <main class="app">
+    <div class="panes" id="panes">
+      <div class="pane-mount" id="paneMount0"></div>
+      <div class="pane-splitter" id="paneSplitter" hidden></div>
+      <div class="pane-mount" id="paneMount1" hidden></div>
     </div>
 
-<script>
-    // Set your specific release date and time here (Format: YYYY-MM-DDTHH:MM:SS)
-    const targetDate = new Date("2026-09-30T12:00:00").getTime();
+    <footer class="statusbar">
+      <span id="fileStatus">No file open</span>
+      <span id="languageStatus">Plain Text</span>
+      <span id="encodingStatus">UTF-8</span>
+      <span id="positionStatus">Ln 1, Col 1</span>
+    </footer>
+  </main>
 
-    function updateCountdown() {
-        const now = new Date().getTime();
-        const distance = targetDate - now;
+  <input id="fileInput" type="file" multiple hidden>
+  <input id="folderInput" type="file" webkitdirectory multiple hidden>
 
-        if (distance < 0) {
-            document.getElementById("countdown").innerHTML = "<p style='grid-column: span 4; margin:0;'>We are live!</p>";
-            return;
-        }
+  <div id="closeModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="closeModalTitle">
+    <div class="close-modal">
+      <h2 id="closeModalTitle">Unsaved changes</h2>
+      <p id="closeModalMessage"></p>
+      <div class="close-modal-actions">
+        <button id="closeCancel" type="button">Cancel</button>
+        <button id="closeDiscard" type="button" class="danger">Close without saving</button>
+        <button id="closeSave" type="button" class="primary">Save</button>
+      </div>
+    </div>
+  </div>
 
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        document.getElementById("days").innerText = String(days).padStart(2, '0');
-        document.getElementById("hours").innerText = String(hours).padStart(2, '0');
-        document.getElementById("minutes").innerText = String(minutes).padStart(2, '0');
-        document.getElementById("seconds").innerText = String(seconds).padStart(2, '0');
-    }
-
-    // Run immediately and update every second
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-</script>
-
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
-
