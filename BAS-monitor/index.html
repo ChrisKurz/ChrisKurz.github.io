@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Battery Monitor</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="frame">
+
+  <header class="panel-header">
+    <div class="header-title">
+      <img class="logo" src="bluetooth-logo.png" alt="Bluetooth logo" aria-hidden="true">
+      <div>
+        <h1>Battery Monitor</h1>
+        <p class="subtitle" id="appSubtitle"></p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="slot-counter">
+        <span class="mono slot-count" id="slotCount">0</span><span class="mono slot-max">/5</span>
+        <span class="slot-label">connected</span>
+      </div>
+      <button id="themeToggleBtn" class="icon-btn" title="Switch to light mode" aria-label="Toggle light/dark theme">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+          <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 1 0 10.5 10.5Z" fill="currentColor"/>
+        </svg>
+      </button>
+      <button id="settingsBtn" class="icon-btn" title="Settings" aria-label="Open settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="3.3" stroke="currentColor" stroke-width="1.6"/>
+          <circle cx="12" cy="12" r="7" stroke="currentColor" stroke-width="1.6"/>
+          <g fill="currentColor">
+            <rect x="10.6" y="1.3" width="2.8" height="2.8" rx="0.6"/>
+            <rect x="10.6" y="1.3" width="2.8" height="2.8" rx="0.6" transform="rotate(45 12 12)"/>
+            <rect x="10.6" y="1.3" width="2.8" height="2.8" rx="0.6" transform="rotate(90 12 12)"/>
+            <rect x="10.6" y="1.3" width="2.8" height="2.8" rx="0.6" transform="rotate(135 12 12)"/>
+            <rect x="10.6" y="1.3" width="2.8" height="2.8" rx="0.6" transform="rotate(180 12 12)"/>
+            <rect x="10.6" y="1.3" width="2.8" height="2.8" rx="0.6" transform="rotate(225 12 12)"/>
+            <rect x="10.6" y="1.3" width="2.8" height="2.8" rx="0.6" transform="rotate(270 12 12)"/>
+            <rect x="10.6" y="1.3" width="2.8" height="2.8" rx="0.6" transform="rotate(315 12 12)"/>
+          </g>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div id="unsupportedBanner" class="banner banner-danger" hidden>
+    This browser doesn't support Web Bluetooth. Use a Chromium-based browser (Chrome, Edge, Brave) over
+    <span class="mono">http://localhost</span> or <span class="mono">https://</span>.
+  </div>
+
+  <div id="statusBar" class="status-bar" hidden></div>
+
+  <main class="board">
+    <div class="board-controls">
+      <button id="addDeviceBtn" class="btn-add">
+        <span class="btn-add-icon">+</span><span id="addBtnLabel">Add device</span>
+      </button>
+      <p class="hint" id="addHint"></p>
+    </div>
+
+    <div id="emptyState" class="empty-state">
+      <div class="empty-glyph" aria-hidden="true">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <rect x="10" y="6" width="16" height="28" rx="2" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="15" y="2" width="6" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="13" y="24" width="10" height="6" fill="currentColor" opacity="0.5"/>
+        </svg>
+      </div>
+      <p>No devices connected yet.</p>
+      <p class="empty-sub" id="emptySub"></p>
+    </div>
+
+    <ul id="deviceList" class="device-list" hidden></ul>
+  </main>
+
+  <footer class="panel-footer">
+    <span class="mono">battery_service · 0x180F</span>
+    <span class="dot-sep">·</span>
+    <span class="mono">battery_level · 0x2A19</span>
+  </footer>
+
+</div>
+
+<div id="settingsOverlay" class="overlay" hidden>
+  <div class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="settings-header">
+      <h2 id="settingsTitle">Settings</h2>
+      <button id="settingsCloseBtn" class="icon-btn" aria-label="Close settings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="settings-field">
+      <div class="settings-field-label">
+        <label for="prefixInput">Device name prefix</label>
+      </div>
+      <input type="text" id="prefixInput" class="mono" placeholder="e.g. BAS_ (leave blank for no filter)">
+      <p class="settings-hint">Only devices whose name starts with this text appear in the picker. Clear it to show every nearby Bluetooth LE device instead.</p>
+    </div>
+
+    <div class="settings-field">
+      <div class="settings-field-label">
+        <label for="maxDevicesInput">Maximum connected devices</label>
+        <span class="mono settings-value" id="maxDevicesValue">5</span>
+      </div>
+      <input type="range" id="maxDevicesInput" min="1" max="20" step="1" value="5">
+      <p class="settings-hint">How many devices can be connected at the same time. 1&ndash;20.</p>
+    </div>
+
+    <div class="settings-field">
+      <div class="settings-field-label">
+        <label for="updateRateInput">Battery update rate</label>
+        <span class="mono settings-value" id="updateRateValue">2.0s</span>
+      </div>
+      <input type="range" id="updateRateInput" min="300" max="10000" step="100" value="2000">
+      <p class="settings-hint">How often each connected device is re-read for its battery level. 300ms&ndash;10s. Faster rates use more radio traffic and battery on both ends.</p>
+    </div>
+
+    <div class="settings-footer">
+      <button id="settingsDoneBtn" class="btn-add">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function syncLogoHeight() {
+    var logo = document.querySelector('.logo');
+    var title = document.getElementById('appSubtitle') ? document.querySelector('.header-title h1') : null;
+    if (logo && title) {
+      var h = title.getBoundingClientRect().height;
+      if (h > 0) {
+        logo.style.height = h + 'px';
+        logo.style.width = 'auto';
+      }
+    }
+  }
+  window.addEventListener('load', syncLogoHeight);
+  window.addEventListener('resize', syncLogoHeight);
+</script>
+<script src="app.js"></script>
+</body>
+</html>

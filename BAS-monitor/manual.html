@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Battery Monitor — User Guide</title>
+<style>
+    :root {
+        --bg: #12141c;
+        --bg-elevated: #181b26;
+        --border: #262a37;
+        --text-primary: #e7e9ee;
+        --text-secondary: #9198ac;
+        --text-muted: #6b7286;
+        --accent: #e3a33d;
+        --accent-soft: rgba(227, 163, 61, 0.14);
+        --sidebar-hover: #1f2330;
+        --shadow: rgba(0, 0, 0, 0.35);
+    }
+
+    html[data-theme="light"] {
+        --bg: #faf9f7;
+        --bg-elevated: #ffffff;
+        --border: #e6e2da;
+        --text-primary: #211f1c;
+        --text-secondary: #5c584f;
+        --text-muted: #8a8578;
+        --accent: #b0700f;
+        --accent-soft: rgba(176, 112, 15, 0.10);
+        --sidebar-hover: #f1eee7;
+        --shadow: rgba(0, 0, 0, 0.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--bg);
+        color: var(--text-primary);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+        transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* --- Top bar --- */
+    header.top-bar {
+        height: 64px;
+        background-color: var(--bg-elevated);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 28px;
+        flex-shrink: 0;
+    }
+
+    .top-bar .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .top-bar .brand svg {
+        width: 22px;
+        height: 22px;
+        color: var(--accent);
+        flex-shrink: 0;
+    }
+
+    .top-bar .brand-name {
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: var(--text-primary);
+        letter-spacing: -0.01em;
+    }
+
+    .top-bar .divider {
+        width: 1px;
+        height: 22px;
+        background-color: var(--border);
+        margin: 0 16px;
+    }
+
+    .top-bar .tool-badge {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.15;
+    }
+
+    .top-bar .tool-badge .tool-label {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+    }
+
+    .top-bar .tool-badge .tool-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--accent);
+    }
+
+    .top-bar .right-controls {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .theme-toggle {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background-color: transparent;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.2s, color 0.2s;
+    }
+
+    .theme-toggle:hover {
+        background-color: var(--sidebar-hover);
+        color: var(--accent);
+    }
+
+    .theme-toggle svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* --- Main layout --- */
+    .main-container {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    aside.sidebar {
+        width: 272px;
+        background-color: var(--bg-elevated);
+        border-right: 1px solid var(--border);
+        padding: 28px 14px;
+        overflow-y: auto;
+        flex-shrink: 0;
+    }
+
+    aside.sidebar h3 {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+        padding-left: 10px;
+        font-weight: 500;
+    }
+
+    aside.sidebar ul {
+        list-style: none;
+    }
+
+    aside.sidebar li {
+        margin-bottom: 2px;
+    }
+
+    aside.sidebar a {
+        display: block;
+        padding: 9px 12px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        border-radius: 7px;
+        font-size: 0.93rem;
+        transition: background 0.15s, color 0.15s;
+    }
+
+    aside.sidebar a:hover {
+        background-color: var(--sidebar-hover);
+        color: var(--text-primary);
+    }
+
+    aside.sidebar a.active {
+        background-color: var(--accent-soft);
+        color: var(--accent);
+        font-weight: 600;
+    }
+
+    /* --- Content --- */
+    main.content {
+        flex: 1;
+        padding: 48px;
+        overflow-y: auto;
+        scroll-behavior: smooth;
+    }
+
+    .content-inner {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .content section {
+        display: none;
+        margin-bottom: 8px;
+        animation: fadeIn 0.2s ease;
+    }
+
+    .content section.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chapter-nav {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+    }
+
+    .chapter-nav a {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        padding: 8px 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        transition: background 0.15s, color 0.15s;
+    }
+
+    .chapter-nav a:hover {
+        background-color: var(--sidebar-hover);
+        color: var(--accent);
+    }
+
+    .chapter-nav .spacer {
+        flex: 1;
+    }
+
+    .content h1 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 2.1rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 14px;
+    }
+
+    .content h2 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 1.4rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-top: 8px;
+        margin-bottom: 14px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .content p {
+        line-height: 1.65;
+        margin-bottom: 14px;
+        color: var(--text-secondary);
+    }
+
+    .content ul {
+        margin-bottom: 14px;
+        padding-left: 20px;
+        color: var(--text-secondary);
+        line-height: 1.65;
+    }
+
+    .content strong {
+        color: var(--text-primary);
+    }
+
+    .intro-lede {
+        font-size: 1.05rem;
+        color: var(--text-secondary);
+    }
+
+    .faq-item {
+        background-color: var(--bg-elevated);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 18px 20px;
+    }
+
+    .faq-item p { margin-bottom: 0; }
+    .faq-item p + p { margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<header class="top-bar">
+    <div class="brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6.5A2.5 2.5 0 0 0 4 21.5v-17Z"/>
+            <path d="M4 17.5A2.5 2.5 0 0 1 6.5 15H20"/>
+        </svg>
+        <span class="brand-name">Manual</span>
+        <div class="divider"></div>
+        <div class="tool-badge">
+            <span class="tool-label">Documentation for</span>
+            <span class="tool-name">Bluetooth BAS Monitor</span>
+        </div>
+    </div>
+    <div class="right-controls">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle color theme" title="Toggle light / dark mode">
+            <svg id="themeIcon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.742 13.045a8.088 8.088 0 0 1-2.077.271c-2.135 0-4.14-.83-5.646-2.336-1.507-1.507-2.336-3.512-2.336-5.646 0-.693.09-1.376.271-2.077a.5.5 0 0 0-.633-.61A9.5 9.5 0 1 0 21.352 13.68a.5.5 0 0 0-.61-.635Z"/>
+            </svg>
+        </button>
+    </div>
+</header>
+
+<div class="main-container">
+
+    <aside class="sidebar">
+        <h3>Chapters</h3>
+        <ul>
+            <li><a href="#ch0">Bluetooth BAS Monitor - User Guide</a></li>
+            <li><a href="#ch1">1. Introduction & Purpose</a></li>
+            <li><a href="#ch2">2. System Requirements</a></li>
+            <li><a href="#ch3">3. Installation & Setup</a></li>
+            <li><a href="#ch4">4. Getting Started</a></li>
+            <li><a href="#ch5">5. User Interface Overview</a></li>
+            <li><a href="#ch6">6. Step-by-step instructions</a></li>
+            <li><a href="#ch7">7. Troubleshooting</a></li>
+            <li><a href="#ch8">8. Known limitations</a></li>
+            <li><a href="#ch9">9. FAQ &amp; Help</a></li>
+        </ul>
+    </aside>
+
+    <main class="content">
+        <div class="content-inner">
+
+            <section id="ch0">
+                <h1>Bluetooth BAS Monitor — User Guide</h1>
+                <p class="intro-lede">Welcome to the official documentation for Manual. Here you'll find explanations and step-by-step instructions for getting the most out of each tool.</p>
+                <p>Use the navigation on the left to jump straight to any chapter or tool.</p>
+		<br>
+		<p>A local, browser-based tool for connecting to nearby Bluetooth LE devices and reading their battery level live, using the standard Bluetooth Battery Service.</p>
+                <div class="chapter-nav">
+                    <span class="spacer"></span>
+                    <a href="#ch1">Next: 1. Introduction & Purpose →</a>
+                </div>
+            </section>
+
+            <section id="ch1">
+                <h1>1. Introduction & Purpose</h1>
+		<p>Battery Monitor is a lightweight web application, built entirely from static HTML, CSS, and JavaScript, that runs directly in your browser using the <strong>Web Bluetooth API</strong>. It is designed for anyone who needs to keep an eye on the battery level of several Bluetooth LE (BLE) beacons or sensors at once, without installing a native app.</p>
+		<p>The app looks for BLE devices whose advertised name starts with a prefix you choose in Settings (`BAS_` by default — this is simply a naming convention, not a Bluetooth standard). You can change this prefix to match your own devices' naming scheme, or clear it entirely to show every nearby BLE device with no filter at all. When you connect to a matching device, the app reads its <strong>Battery Service</strong> (`0x180F`) and <strong>Battery Level</strong> characteristic (`0x2A19`), then keeps that reading up to date on a schedule you  control.</p>
+		<p>Typical uses:</p>
+		<ul>
+		<li>Monitoring a fleet of BLE beacons, tags, or sensors deployed around a site</p>
+		<li>Checking the battery health of a small set of BLE peripherals during development or testing</p>
+		<li>Any situation where you want a simple, no-install dashboard for BLE battery levels</p>
+		</ul>
+                <div class="chapter-nav">
+                    <a href="#ch0">← User Guide</a>
+                    <a href="#ch2">Next: 2. System Requirements →</a>
+                </div>
+            </section>
+
+            <section id="ch2">
+                <h2>2. System Requirements</h2>
+		<table>
+		<tr>
+		<th>Requirement</th>
+		<th>Details</th>
+		</tr>
+		<tr>
+		<td><strong>Browser</strong</td>
+		<td>A Chromium-based browser: Google Chrome, Microsoft Edge, or Brave (desktop or Android). Safari and Firefox do <strong>not</strong> support the Web Bluetooth API and cannot run this app.</td>
+		</tr>
+		<tr>
+		<td><strong>Operating system</strong></td>
+		<td>Windows, macOS, Linux, ChromeOS, or Android — anywhere a supported browser and Bluetooth adapter are available.</td>
+		</tr>
+		<tr>
+		<td><strong>Hardware</strong></td>
+		<td>A Bluetooth Low Energy (BLE) adapter, built-in or USB, enabled and turned on.</td>
+		</tr>
+		<tr>
+		<td><strong>Bluetooth devices</strong></td>
+		<td>Peripherals must support BLE, advertise a name starting with `BAS_`, and expose the standard Battery Service (`0x180F`) with a readable Battery Level characteristic (`0x2A19`).</td)
+		</tr>
+		<tr>
+		<td><strong>Connection context</strong></td>
+		<td>The app must be served over `http://localhost` or `https://` — see Installation & Setup below. It will **not** work if you simply double-click the HTML file.</td>
+		</tr>
+		<tr>
+		<td><strong>Files</strong></td>
+		<td>`index.html`, `style.css`, and `app.js`, kept together in the same folder.</td>
+		</tr>
+		</table>
+                <div class="chapter-nav">
+                    <a href="#ch1">← 1. Introduction & Purpose</a>
+                    <a href="#ch3">Next: 3. Installation & Setup →</a>
+                </div>
+            </section>
+
+            <section id="ch3">
+                <h2>3. Installation & Setup</h2>
+		<p>The tool is launched in the browser via the following link:</p>
+                <p>chriskurz.github.io/battery-monitor</p>
+		<br>
+		<p><strong>NOTE:</strong> A Chromium-based browser is required — Google Chrome, Microsoft Edge, or Brave. Web Bluetooth is not implemented in Safari or Firefox; the app displays a warning banner and disables the "Add device" button if opened in an unsupported browser.</p>
+                <div class="chapter-nav">
+                    <a href="#ch2">← 2. System Requirements</a>
+                    <a href="#ch4">Next: 4. Getting Started →</a>
+                </div>
+            </section>
+
+            <section id="ch4">
+                <h2>4. Getting started</h2>
+		<p>1. Open the app in your browser as described above.</p>
+		<p>2. Turn on the Bluetooth peripherals you want to monitor and make sure their advertised name starts with `BAS_`.</p>
+		<p>3. Click <strong>Add BAS_ device</strong>.</p>
+		<p>4. Your browser will show its native device picker, already filtered to names starting with `BAS_`. Select the device you want to connect.</p>
+		<p>5. The app connects automatically, reads the battery level, and adds a card for that device to the list.</p>
+  		<p>6. Repeat steps 3–5 for each additional device, up to your configured maximum (5 by default, adjustable up to 20 in Settings).</p>
+		<br>
+		<p>That's it — each connected device's card will keep updating on its own.</p>
+                <div class="chapter-nav">
+                    <a href="#ch3">← 3. Installation & Setup</a>
+                    <a href="#ch5">Next: 5. User Interface Overview →</a>
+                </div>
+            </section>
+
+            <section id="ch5">
+                <h2>5. User Interface Overview</h2>
+		<h3>Header</h3>
+		<ul>
+		<li><strong>Logo & title</strong> — "Battery Monitor," with a Bluetooth-style icon.</li>
+		<li><strong>Description</strong> — a short reminder of what the `BAS_` prefix means.</li>
+		<li><strong>Slot counter</strong> (e.g. `3/5`) — how many devices are connected out of your configured maximum.</li>
+		<li><strong>Moon icon</strong> — toggles between dark and light appearance. Your choice is remembered between sessions.</li>
+		<li><strong>Gear icon</strong> — opens the <strong>Settings</strong> panel.</li>
+		</ul>
+		<br>
+		<h3>Main panel</h3>
+		<ul>
+		<li><strong>Add BAS_ device button</strong> — opens the browser's device picker to connect a new device. Disabled once you've reached your configured maximum.</li>
+		<li><strong>Empty state</strong> — shown when no devices are connected yet, with a short reminder of what to do.</li>
+		<li><strong>Device list</strong> — one card per connected device, showing:
+			<ul>
+			<li>A status dot (grey = connecting, green = connected, red = disconnected/error)</li>
+			<li>The device's advertised name</li>
+			<li>A short status line (e.g. "battery_service · live", "disconnected")</li>
+			<li>The current battery percentage, color-coded:
+				<ul>
+				<li><strong>Green</strong> — above 50%</li>
+				<li><strong>Amber</strong> — 20–50%</li>
+				<li><strong>Red</strong> — 20% or below</li>
+				</ul>
+			<li>A small battery bar mirroring the percentage</li>
+			<li>A <strong>✕</strong> button to disconnect and remove that device, freeing a slot</li>
+			</ul>
+		</ul>
+		<br>
+		<h3>Settings panel (opened via the gear icon)</h3>
+		<ul>
+		<li><strong>Device name prefix</strong> — a text field. Only devices whose advertised name starts with this text appear in the picker (default `BAS_`). Clear it completely to show every nearby Bluetooth LE device instead.</li>
+		<li><strong>Maximum connected devices</strong> — a slider from 1 to 20.</li>
+		<li><strong>Battery update rate</strong> — a slider from 300 ms to 10 s, controlling how often each connected device is re-read for its battery level.</li>
+		<li><strong>Done</strong> button — closes the panel. Changes apply immediately and are saved automatically; there's nothing else to confirm.</li>
+		</ul>
+		<br>
+                <div class="chapter-nav">
+                    <a href="#ch4">← 4. Getting started</a>
+                    <a href="#ch6">Next: 6. Step-by-step instructions →</a>
+                </div>
+            </section>
+
+            <section id="ch6">
+                <h2>6. Step-by-step instructions</h2>
+		<h3>Connecting a device</h3>
+		<p>1. Click <strong>Add BAS_ device</strong>.</p>
+		<p>2. Choose your device from the browser's picker and confirm.</p>
+		<p>3. Wait a moment while the app connects and performs its first battery read.</p>
+		<p>4. The device appears in the list with its live battery percentage.</p>
+		<br>
+		<h3>Disconnecting a device</h3>
+		<p>1. Find the device's card in the list.</p>
+		<p>2. Click the <strong>✕</strong> button on that card.</p>
+		<p>3. The device disconnects immediately and its slot becomes available again.</p>
+		<br>
+		<h3>Changing the device name prefix (or turning it off)</h3>
+		<p>1. Open <strong>Settings</strong>.</p>
+		<p>2. Edit the **Device name prefix** field to whatever prefix your devices use, or clear it entirely to show every nearby Bluetooth LE device in the picker with no name filter.</p>
+		<p>3. Close the panel. The new prefix applies the next time you click <strong>Add device</strong>.</p>
+		<br>
+		<h3>Changing the maximum number of devices</h3>
+		<p>1. Click the <strong>gear icon</strong> to open Settings.</p>
+		<p>2. Drag the <strong>Maximum connected devices</strong> slider to the value you want (1–20).</p>
+		<p>3. Click <strong>Done</strong>, or simply click outside the panel to close it. The new limit applies right away — you don't need to reconnect existing devices.</p>
+		<br>
+		<h3>Changing the update rate</h3>
+		<p>1. Open <strong>Settings</strong>.</p>
+		<p>2. Drag the <strong>Battery update rate</strong> slider to the interval you want (300 ms to 10 s).</p>
+		<p>3. Close the panel. All currently connected devices immediately switch to the new rate.</p>
+		<br>
+		<h3>Switching between dark and light mode</h3>
+		<p>1. Click the <strong>moon icon</strong> in the header.</p>
+		<p>2. The interface switches theme immediately. Your preference is remembered the next time you open the app.</p>
+		<br>
+                <div class="chapter-nav">
+                    <a href="#ch5">← 5. User Interface Overview</a>
+                    <a href="#ch7">Next: 7. Troubleshooting →</a>
+                </div>
+            </section>
+
+            <section id="ch7">
+                <h2>7. Troubleshooting</h2>
+		<h3>Problem: "This browser doesn't support Web Bluetooth"** banner appears</h3>
+		<p>You're using Safari, Firefox, or an unsupported browser. Switch to Chrome, Edge, or Brave. 
+		<br>
+		<h3>The device picker opens, but no devices are listed
+		<p>The peripheral isn't advertising, is out of range, its name doesn't actually start with `BAS_`, or Bluetooth is off on your computer. Confirm the device is powered on and nearby, and double-check its advertised name. </p>
+		<br>
+		<h3>"No BAS_ device selected — cancelled or none in range" message</h3>
+		<p>You closed the picker without choosing a device, or no matching device was found. Try again once the device is confirmed to be advertising. </p>
+		<br>
+		<h3>A device shows an error status right after connecting</h3>
+		<p>The device connected over BLE but doesn't expose the standard Battery Service/Battery Level characteristic, or the read failed. Check the status text on the card for the specific error. </p>
+		<br>
+		<h3>A device shows "disconnected" unexpectedly</h3>
+		<p>The peripheral went out of range, was powered off, or dropped the BLE connection on its own. Remove it with <strong>✕</strong> and reconnect via <strong>Add BAS_ device</strong> once it's back in range. </p>
+		<br>
+		<h3>Battery percentage seems stale</h3>
+		<p>Check the update rate in Settings — a slow rate (e.g. 10 s) means the value only refreshes that often. Lower the interval if you need faster updates. </p>
+		<br>
+		<h3>Settings panel won't close</h3>
+		<p>Click **Done**, the **✕** in the panel's corner, or click anywhere on the dimmed background outside the panel. </p>
+		<br>
+		<h3>"Add BAS_ device" button is disabled</h3>
+		<p>You've reached your configured maximum number of devices. Either disconnect one with **✕**, or raise the limit in Settings. </p>|
+		<br>
+                <div class="chapter-nav">
+                    <a href="#ch6">← 6. Step-by-step instructions</a>
+                    <a href="#ch8">Next: 8. Known limitations →</a>
+                </div>
+            </section>
+
+            <section id="ch8">
+                <h2>8. Known limitations</h2>
+		<h3>No true background scanning</h3>
+		<p>Browsers do not allow a web page to silently discover every nearby BLE device. Each device must be selected individually from the browser's native picker, which requires a manual click each time — there is no way to fully automate this step.</p>
+		<br>
+		<h3>One device per picker interaction</h3>
+		<p>You cannot select multiple devices in a single picker session; connect them one at a time.</p>
+		<br>
+		<h3>Requires a secure context</h3>
+		<p>The app will not run from a plain `file://` page — it must be served over `http://localhost` or `https://`.</p>
+		<br>
+		<h3>Browser support is limited</h3>
+		<p>Web Bluetooth is only available in Chromium-based browsers. It is not supported in Safari or Firefox on any platform, and Web Bluetooth is unavailable on iOS entirely (Apple does not support it in any iOS browser, per Apple's WebKit restrictions).</p>
+		<br>
+		<h3>Depends on standard services only</h3>
+		<p>The app only reads the standard Bluetooth Battery Service; it cannot read proprietary/vendor-specific battery reporting mechanisms some devices use instead.</p>
+		<br>
+		<h3>No persistence of connected devices across reloads</h3>
+		<p>Refreshing the page clears all active connections; you'll need to reconnect each device afterward. (Your Settings — maximum devices, update rate, theme — do persist.)</p>
+		<hr>
+		<h3>Polling has a cost</h3>
+		<p>Very short update intervals (close to 300 ms) increase radio traffic and may increase power draw on both your computer
+  and the connected peripherals.</p>
+		<br>
+                <div class="chapter-nav">
+                    <a href="#ch7">← 7. Troubleshooting</a>
+                    <a href="#ch9">Next: 9. FAQ &amp; Help →</a>
+                </div>
+            </section>
+
+            <section id="ch9">
+                <h2>9. FAQ &amp; Help</h2>
+
+                <div class="faq-item">
+                    <p><strong>Q: What should I do if a tool won't load?</strong></p>
+                    <p>A: First try clearing your browser cache and reloading the page.</p>
+                </div>
+
+                <div class="faq-item">
+                    <p><strong>Q: Why do device names have to start with "BAS_"?</strong></p>
+                    <p>A: By default the app filters the picker to names starting with `BAS_`, but this is just a default, not a requirement — you can change the prefix to match your own devices' naming scheme, or clear the field in Settings entirely to show every nearby Bluetooth LE device with no filter.</p>
+                </div>
+
+                <div class="faq-item">
+                    <p><strong>Q: Can I monitor more than 20 devices?</strong></p>
+                    <p>A: Not currently — the settings cap the maximum at 20 simultaneous connections. This is a practical limit rather than a hard technical one; most BLE adapters and browsers begin to struggle with many more concurrent GATT connections.</p>
+                </div>
+
+                <div class="faq-item">
+                    <p><strong>Q: Does this app send any data anywhere?</strong></p>
+                    <p>A: No. Everything happens locally in your browser, directly between your computer and the Bluetooth devices. There is no server, account, or network request involved.</p>
+                </div>
+
+                <div class="faq-item">
+                    <p><strong>Q: Why does the battery percentage only update every couple of seconds?</strong></p>
+                    <p>A: The app re-reads each device's battery level on the interval set in Settings (2 seconds by default). Lower this value if you need faster updates, keeping in mind the trade-off noted in Known Limitations.</p>
+                </div>
+
+                <div class="faq-item">
+                    <p><strong>Q: A device disconnected on its own — will it reconnect automatically?</strong></p>
+                    <p>A: No, not automatically. Remove it with the <strong>✕</strong> button and reconnect it via <strong>Add BAS_ device</strong>  once it's back in range and powered on.</p>
+                </div>
+
+                <div class="chapter-nav">
+                    <a href="#ch8">← 8. Known limitations</a>
+                    <span class="spacer"></span>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+</div>
+
+<script>
+    (function () {
+        var moonIcon = '<path d="M20.742 13.045a8.088 8.088 0 0 1-2.077.271c-2.135 0-4.14-.83-5.646-2.336-1.507-1.507-2.336-3.512-2.336-5.646 0-.693.09-1.376.271-2.077a.5.5 0 0 0-.633-.61A9.5 9.5 0 1 0 21.352 13.68a.5.5 0 0 0-.61-.635Z"/>';
+        var sunIcon = '<path d="M12 4.5a1 1 0 0 1-1-1v-1a1 1 0 1 1 2 0v1a1 1 0 0 1-1 1Zm0 15a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1Zm7.5-7.5a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2h-1a1 1 0 0 1-1-1Zm-15 0a1 1 0 0 1-1 1h-1a1 1 0 1 1 0-2h1a1 1 0 0 1 1 1Zm13.02-5.52a1 1 0 0 1 0-1.42l.71-.7a1 1 0 1 1 1.41 1.41l-.7.71a1 1 0 0 1-1.42 0Zm-11.04 11.04a1 1 0 0 1 0 1.42l-.71.7a1 1 0 1 1-1.41-1.41l.7-.71a1 1 0 0 1 1.42 0Zm11.04 0a1 1 0 0 1 1.42 0l.7.71a1 1 0 1 1-1.41 1.41l-.71-.7a1 1 0 0 1 0-1.42ZM6.48 5.98a1 1 0 0 1-1.42 0l-.7-.71A1 1 0 1 1 5.77 3.86l.71.7a1 1 0 0 1 0 1.42ZM12 7.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Z"/>';
+
+        var root = document.documentElement;
+        var toggleBtn = document.getElementById('themeToggle');
+        var iconEl = document.getElementById('themeIcon');
+
+        function render(theme) {
+            iconEl.innerHTML = theme === 'dark' ? moonIcon : sunIcon;
+        }
+
+        render(root.getAttribute('data-theme'));
+
+        toggleBtn.addEventListener('click', function () {
+            var current = root.getAttribute('data-theme');
+            var next = current === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            render(next);
+        });
+    })();
+
+    (function () {
+        var sections = document.querySelectorAll('.content section');
+        var navLinks = document.querySelectorAll('a[href^="#"]');
+        var contentEl = document.querySelector('main.content');
+        var defaultChapter = 'ch0';
+
+        function showChapter(id) {
+            var found = false;
+            sections.forEach(function (section) {
+                if (section.id === id) {
+                    section.classList.add('active');
+                    found = true;
+                } else {
+                    section.classList.remove('active');
+                }
+            });
+            if (!found) {
+                document.getElementById(defaultChapter).classList.add('active');
+                id = defaultChapter;
+            }
+
+            navLinks.forEach(function (link) {
+                var isSidebarLink = link.closest('aside.sidebar') !== null;
+                if (isSidebarLink) {
+                    link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+                }
+            });
+
+            contentEl.scrollTop = 0;
+        }
+
+        navLinks.forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                var id = link.getAttribute('href').slice(1);
+                window.location.hash = id;
+                showChapter(id);
+            });
+        });
+
+        window.addEventListener('hashchange', function () {
+            var id = window.location.hash.slice(1) || defaultChapter;
+            showChapter(id);
+        });
+
+        var initialId = window.location.hash.slice(1) || defaultChapter;
+        showChapter(initialId);
+    })();
+</script>
+
+</body>
+</html>
