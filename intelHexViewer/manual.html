@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual — User Guide</title>
+<style>
+    :root {
+        --bg: #12141c;
+        --bg-elevated: #181b26;
+        --border: #262a37;
+        --text-primary: #e7e9ee;
+        --text-secondary: #9198ac;
+        --text-muted: #6b7286;
+        --accent: #e3a33d;
+        --accent-soft: rgba(227, 163, 61, 0.14);
+        --sidebar-hover: #1f2330;
+        --shadow: rgba(0, 0, 0, 0.35);
+    }
+
+    html[data-theme="light"] {
+        --bg: #faf9f7;
+        --bg-elevated: #ffffff;
+        --border: #e6e2da;
+        --text-primary: #211f1c;
+        --text-secondary: #5c584f;
+        --text-muted: #8a8578;
+        --accent: #b0700f;
+        --accent-soft: rgba(176, 112, 15, 0.10);
+        --sidebar-hover: #f1eee7;
+        --shadow: rgba(0, 0, 0, 0.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--bg);
+        color: var(--text-primary);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+        transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* --- Top bar --- */
+    header.top-bar {
+        height: 64px;
+        background-color: var(--bg-elevated);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 28px;
+        flex-shrink: 0;
+    }
+
+    .top-bar .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .top-bar .brand svg {
+        width: 22px;
+        height: 22px;
+        color: var(--accent);
+        flex-shrink: 0;
+    }
+
+    .top-bar .brand-name {
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: var(--text-primary);
+        letter-spacing: -0.01em;
+    }
+
+    .top-bar .divider {
+        width: 1px;
+        height: 22px;
+        background-color: var(--border);
+        margin: 0 16px;
+    }
+
+    .top-bar .tool-badge {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.15;
+    }
+
+    .top-bar .tool-badge .tool-label {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+    }
+
+    .top-bar .tool-badge .tool-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--accent);
+    }
+
+    .top-bar .right-controls {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .theme-toggle {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background-color: transparent;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.2s, color 0.2s;
+    }
+
+    .theme-toggle:hover {
+        background-color: var(--sidebar-hover);
+        color: var(--accent);
+    }
+
+    .theme-toggle svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* --- Main layout --- */
+    .main-container {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    aside.sidebar {
+        width: 272px;
+        background-color: var(--bg-elevated);
+        border-right: 1px solid var(--border);
+        padding: 28px 14px;
+        overflow-y: auto;
+        flex-shrink: 0;
+    }
+
+    aside.sidebar h3 {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+        padding-left: 10px;
+        font-weight: 500;
+    }
+
+    aside.sidebar ul {
+        list-style: none;
+    }
+
+    aside.sidebar li {
+        margin-bottom: 2px;
+    }
+
+    aside.sidebar a {
+        display: block;
+        padding: 9px 12px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        border-radius: 7px;
+        font-size: 0.93rem;
+        transition: background 0.15s, color 0.15s;
+    }
+
+    aside.sidebar a:hover {
+        background-color: var(--sidebar-hover);
+        color: var(--text-primary);
+    }
+
+    aside.sidebar a.active {
+        background-color: var(--accent-soft);
+        color: var(--accent);
+        font-weight: 600;
+    }
+
+    /* --- Content --- */
+    main.content {
+        flex: 1;
+        padding: 48px;
+        overflow-y: auto;
+        scroll-behavior: smooth;
+    }
+
+    .content-inner {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .content section {
+        display: none;
+        margin-bottom: 8px;
+        animation: fadeIn 0.2s ease;
+    }
+
+    .content section.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chapter-nav {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+    }
+
+    .chapter-nav a {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        padding: 8px 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        transition: background 0.15s, color 0.15s;
+    }
+
+    .chapter-nav a:hover {
+        background-color: var(--sidebar-hover);
+        color: var(--accent);
+    }
+
+    .chapter-nav .spacer {
+        flex: 1;
+    }
+
+    .content h1 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 2.1rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 14px;
+    }
+
+    .content h2 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 1.4rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-top: 8px;
+        margin-bottom: 14px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .content p {
+        line-height: 1.65;
+        margin-bottom: 14px;
+        color: var(--text-secondary);
+    }
+
+    .content ul {
+        margin-bottom: 14px;
+        padding-left: 20px;
+        color: var(--text-secondary);
+        line-height: 1.65;
+    }
+
+    .content strong {
+        color: var(--text-primary);
+    }
+
+    .intro-lede {
+        font-size: 1.05rem;
+        color: var(--text-secondary);
+    }
+
+    .faq-item {
+        background-color: var(--bg-elevated);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 18px 20px;
+    }
+
+    .faq-item p { margin-bottom: 0; }
+    .faq-item p + p { margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<header class="top-bar">
+    <div class="brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6.5A2.5 2.5 0 0 0 4 21.5v-17Z"/>
+            <path d="M4 17.5A2.5 2.5 0 0 1 6.5 15H20"/>
+        </svg>
+        <span class="brand-name">Manual</span>
+        <div class="divider"></div>
+        <div class="tool-badge">
+            <span class="tool-label">Documentation for</span>
+            <span class="tool-name">Intel Hex Viewer</span>
+        </div>
+    </div>
+    <div class="right-controls">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle color theme" title="Toggle light / dark mode">
+            <svg id="themeIcon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.742 13.045a8.088 8.088 0 0 1-2.077.271c-2.135 0-4.14-.83-5.646-2.336-1.507-1.507-2.336-3.512-2.336-5.646 0-.693.09-1.376.271-2.077a.5.5 0 0 0-.633-.61A9.5 9.5 0 1 0 21.352 13.68a.5.5 0 0 0-.61-.635Z"/>
+            </svg>
+        </button>
+    </div>
+</header>
+
+<div class="main-container">
+
+    <aside class="sidebar">
+        <h3>Chapters</h3>
+        <ul>
+            <li><a href="#introduction">1. Introduction & Purpose</a></li>
+            <li><a href="#requirements">2. System Requirements</a></li>
+            <li><a href="#install">3. Installation & Setup</a></li>
+            <li><a href="#start">4. Getting Started</a></li>
+            <li><a href="#interface">5. User Interface Overview</a></li>
+            <li><a href="#ifheader">5.1 Header</a></li>
+            <li><a href="#iftoolbar">5.2 Toolbar Controls</a></li>
+            <li><a href="#ifmemory">5.3 Memory map</a></li>
+            <li><a href="#mcuboot">5.4 MCUboot</a></li>
+            <li><a href="#steps">6. Step-by-step instructions</a></li>
+            <li><a href="#trouble">7. Troubleshooting</a></li>
+            <li><a href="#limitation">8. Known limitations</a></li>
+            <li><a href="#faq">9. FAQ &amp; Help</a></li>
+        </ul>
+    </aside>
+
+    <main class="content">
+        <div class="content-inner">
+
+            <section id="introduction">
+                <h1>Intel Hex Viewer — User Guide</h1>
+                <p class="intro-lede">Welcome to the official documentation for Manual. Here you'll find explanations and step-by-step instructions for getting the most out of each tool.</p>
+                <p>Use the navigation on the left to jump straight to any chapter or tool.</p>
+		<br>
+		<h3>Overview</h3>
+		<p>The <strong>Intel Hex Viewer and MCUboot Image Analyzer</strong> is a browser-based tool for visual inspection of Intel HEX files at byte level. It renders the address space as a memory map and automatically searches the loaded data for MCUboot image headers and swap trailers.</p>
+                <p>The application runs entirely in the browser. The source code explicitly states that no file is uploaded anywhere. The supported file picker accepts `.hex`, `.ihex`, and `.txt` files.</+>
+                <br>
+                <h3>Main capabilities</h3>
+                <ul>
+                    <li>Open an Intel HEX file from the local computer.</li>
+		    <li>Drag and drop a file anywhere onto the page.</li>
+		    <li>Load a built-in sample HEX file.</li>
+		    <li>Visualize every byte as a pixel.</li>
+		    <li>Distinguish actual data from addresses with no data.</li>
+		    <li>Detect MCUboot `IMAGE_MAGIC` patterns.</li>
+		    <li>Classify detections as <strong>VERIFIED IMAGE</strong>, <strong>UNCONFIRMED</strong>, <strong>INCOMPLETE</strong>, or filtered/likely non-image matches.</li>
+		    <li>Inspect individual bytes by hovering over the memory map.</li>
+		    <li>Inspect MCUboot header fields and image status.</li>
+                    <li>Display Intel HEX parser warnings.</li>
+                    <li>Select an nRF54L device profile for reference and address-range checking.</li>
+                    <li>Split sparse address spaces into separate regions.</li>
+                    <li>Adjust the visualization zoom.</li>
+                    <li>Download the generated sample HEX file.</li>
+                </ul>
+                <br>
+                <p><strong>Important:</strong> The selected target device is a <strong>reference only</strong>. It does not program or communicate with the device. </p>
+		<br>
+		<h3>Privacy</h3>
+		<p>The application is designed to process files locally in the browser.</p>
+		<p>The application footer explicitly states:</p>
+		<p><strong>Intel Hex Viewer --- runs entirely in your browser. No file is uploaded anywhere.</strong></p>
+		<p>Files are read using the browser's `FileReader` API and are not sent to a server by the application code.</p>
+                <div class="chapter-nav">
+                    <span class="spacer"></span>
+                    <a href="#requirements">Next: 2. System Requirements →</a>
+                </div>
+            </section>
+
+            <section id="requirements">
+                <h2>2. System Requirements</h2>
+                <p>The Intel HEX Viewer is a browser-based application that requires a modern web browser with JavaScript enabled. No software installation or dedicated server is required. The application runs entirely within the browser and processes HEX files locally; therefore, an internet connection is not required during normal operation. The tool does not specify minimum CPU, RAM, operating system, or browser-version requirements.</p>
+                <div class="chapter-nav">
+                    <a href="#introduction">← 1. Introduction & Purpose</a>
+                    <a href="#install">Next: 3. Installation & Setup →</a>
+                </div>
+            </section>
+
+            <section id="install">
+                <h2>3. Installation & Setup</h2>
+                <p>The Intel HEX Viewer is provided as a web-based application and does not require a local software installation.</p>
+                <p>To access the application, open the following web address in a supported web browser:</p>
+                <a href="https://chriskurz.github.io/">https://chriskurz.github.io/</a>
+                <br>
+                <br>
+                <p>The application is ready for use after the page has loaded. No additional software, libraries, or server components need to be installed. The Intel HEX files selected for analysis are processed locally within the browser.</p>
+                <div class="chapter-nav">
+                    <a href="#requirements">← 2. System Requirements</a>
+                    <a href="#start">Next: 4. Getting started →</a>
+                </div>
+            </section>
+
+            <section id="start">
+                <h2>4. Getting started</h2>
+                <h3>4.1 Open the application </h3>
+                <p>Open the HTML application in a modern web browser.</p>
+                <p>The initial screen shows an empty memory-map area with the message:</p>
+                <p>No file loaded yet. </p>
+                <br>
+                <p>The toolbar is displayed at the top of the page.</p>
+                <h3>4.2 Load an Intel Hex file</h3>
+                <p>There are two ways to load a file:</p>
+                <ul>
+                    <li>Option A - File picker
+                        <p>1. Click <strong>Open .hex file</strong></p>
+                        <p>2. Select an Intel HEX file from your computer.</p>
+                        <p>3. The application reads the file locally and renders the memory map.</p>
+                        <p>The file input accepts: `.hex`, `.ihex`, `.txt`
+                    </li>
+                    <li>Option B - Drag and drop
+                        <p>1. Select the HEX file in your file manager.</p>
+			<p>2.  Drag it onto the application page.</p>
+			<p>3.  Release it anywhere on the page.</p>
+                        <p>The application reads the dropped file and displays it automatically.</p>
+                    </li>
+                </ul>
+                <br>
+                <h3>4.3 Loading the Built-in Sample</h3>
+                <p>Click <strong>Load sample</strong> to generate and display a synthetic Intel HEX example.</p>
+                <p>The sample is designed to demonstrate:</p>
+                <ul>
+                    <li>erased data (`0xFF`)</li>
+		    <li>MCUboot headers</li>
+		    <li>a confirmed image</li>
+		    <li>a test/pending image</li>
+		    <li>an unrelated occurrence of the MCUboot magic value</li>
+		    <li>zero-initialized data</li>
+		    <li>unwritten gaps</li>
+		</ul>
+		<br>
+		<p>After loading the sample, <strong>Download sample.hex</strong> becomes available. This allows the generated sample to be saved locally and inspected independently.</p>
+                <p>The sample passes through the same loading and parsing path as a user-provided HEX file.</p>
+		<br>
+		<h3> 4.4 Quick Reference</h3>
+		<br>
+		<table>
+		<tr>
+		<th>Task</th>
+		<th>Action</th>
+		</tr>
+		<tr>
+		<td>Open firmware</td>
+		<td>Click <strong>Open .hex file</strong></td>
+		</tr>
+		<tr>
+		<td>Drag in firmware</td>
+		<td>Drop a file anywhere on the page</td>
+		</tr>
+		<tr>
+		<td>View demonstration</td>
+		<td>Click <strong>Load sample</strong></td>
+		</tr>
+		<tr>
+		<td>Save demonstration file</td>
+		<td>Click <strong>Download sample.hex</strong></td>
+		</tr>
+		<tr>
+		<td>Remove loaded data</td>
+		<td>Click <strong>Clear</strong></td>
+		</tr>
+		<tr>
+		<td>Change device reference</td>
+		<td>Use <strong>Target device</strong></td>
+		</tr>
+		<tr>
+		<td>Change visualization size</td>
+		<td>Use <strong>zoom</strong></td>
+		</tr>
+		<tr>
+		<td>Separate sparse regions</td>
+		<td>Enable <strong>split into regions above gap</strong></td>
+		</tr>
+		<tr>
+		<td>Change split distance</td>
+		<td>Edit the <strong>KB</strong> value</td>
+		</tr>
+		<tr>
+		<td>Inspect a byte</td>
+		<td>Hover over the memory map</td>
+		</tr>
+		<tr>
+		<td>Locate a detected image</td>	
+		<td>Click its detection card</td>
+		</tr>
+		<tr>
+		<td>Review parse problems</td>
+		<td>Open <strong>Parser warnings</strong></td>
+		</tr>
+		<tr>
+		<td>Understand colors </td>
+		<td>Use the <strong>Legend</strong></td>
+		</tr>
+		</table>
+                <div class="chapter-nav">
+                    <a href="#install">← 3. Installation & Setup</a>
+                    <a href="#interface">Next: 5. User Interface Overview →</a>
+                </div>
+            </section>
+
+            <section id="interface">
+                <h2>5. User Interface Overview</h2>
+                <p>The interface consists of:</p>
+ 		<ul>
+		    <li>Header</li>
+		    <li>Toolbar</li>
+		    <li>Memory map</li>
+		    <li>Information sidebar</li>
+		</ul>
+                <div class="chapter-nav">
+                    <a href="#install">← 3. Installation & Setup</a>
+                    <a href="#ifheader">Next: 5.1 Header →</a>
+                </div>
+            </section>
+
+	    <section id="ifheader">
+		<h3>5.1 Header</h3>
+		<p>The header identifies the application as:</p>
+		<p><strong>Intel Hex Viewer and MCUboot Image Analyzer</strong></p>
+                <br>
+                <p>It describes the main visualization:</p>
+		<ul>
+		    <li>one pixel represents one byte</li>
+		    <li>`0xFF` is black</li>
+                    <li>`0x00` is white</li>
+                    <li>intermediate values are grayscale</li>
+                    <li>addresses without data are blue</li>
+                    <li>detected MCUboot magic is highlighted in red</li>
+                </ul>
+                <br>
+                <div class="chapter-nav">
+                    <a href="#interface">← 5. User Interface Overview</a>
+                    <a href="#iftoolbar">Next: 5.2 Toolbar Controls →</a>
+                </div>
+            </section>
+
+	    <section id="iftoolbar">
+                <h3>5.2 Toolbar Controls</h3>
+                <h4>Open .hex file</h4>
+		<p>Opens the local file picker.</p>
+		<p>Use this control to load an Intel HEX file.</p>
+		<br>
+                <h4>Load sample</h4>
+		<p>Creates and loads the built-in demonstration HEX file.</p>
+		<p>Use this when learning the application or when you want to verify that the viewer is functioning correctly.</p>
+		<be>
+                <h4>Download sample.hex</h4>
+		<p>This button is hidden until the sample has been loaded.</p>
+		<p>Click it to save the generated sample as `sample.hex`.</p>
+		<br>
+                <h4>Clear</h4>
+		<p>Removes the currently loaded file and restores the initial empty state.</p>
+		<p>The following information is cleared:</p>
+		<ul>
+		    <li>memory map</li>
+		    <li>file statistics</li>
+		    <li>MCUboot detections</li>
+		    <li>parser warnings</li>
+		    <li>byte inspector information</li>
+		</ul>
+		<p>The selected device remains available as a reference selection.</p>
+		<br>
+                <h4>Target device</h4>
+		<p>The <strong>Target device (reference only)</strong> selector contains the following profiles:</p>
+                <table>
+		   <tr>
+                       <th> Device </th>
+                       <th> NVM (RRAM) </th>
+                       <th> RAM </th>
+                   </tr>
+		   <tr>
+                       <td>nRF54L15 </td>
+                       <td>1.5 MB </td>
+                       <td>256 KB </td>
+                   </tr>
+		   <tr>
+                       <td>nRF54L10</td>
+                       <td>1 MB </td>
+                       <td>192 KB</td>
+                   </tr>
+		   <tr>
+                       <td>nRF54L05</td>
+                       <td>0.5 MB</td>
+                       <td>96 KB</td>
+                   </tr>
+		   <tr>
+                       <td>nRF54LM20A</td>
+                       <td>2 MB</td>
+                       <td>512 KB</td>
+                   </tr>
+		   <tr>
+                       <td>nRF54LM20B</td>
+                       <td>2 MB</td>
+                       <td>512 KB</td>
+                   </tr>
+		   <tr>
+                       <td>nRF54LS05A</td>
+                       <td>0.5 MB </td>
+                       <td>64 KB</td>
+                   </tr>
+		   <tr>
+                       <td>nRF54LS05B</td>
+                       <td>0.5 MB</td>
+                       <td>96 KB</td>
+                   </tr>
+		   <tr>
+                       <td>nRF54LV10A</td>
+                       <td>1 MB</td>
+                       <td>192 KB</td>
+                   </tr>
+		</table>
+                <p>The generic option is <strong>--- none / generic ---</strong>.</p>
+                <p>If a device is selected and the maximum address represented by the loaded file exceeds the device's configured NVM size, the sidebar displays a warning. </p>
+                <p>The device selection is informational; it is not used to connect to or program hardware.</p>
+                <br>
+                <h4>Zoom</h4>
+		<p>The <strong>zoom</strong> slider controls the visual size of the memory-map pixels.</p>
+                <p>Available values are:</p>
+	        <p>1x through 6x</p>    	
+                <p>The default value is <strong>3x</strong>.</p>
+                <p>Changing the zoom does not change the loaded data. It only redraws the visualization at a different pixel size.</p>
+                <br>
+                <h4>Splitting Sparse Memory Regions</h4>
+		<p>The checkbox:</p>
+		<p><strong>split into regions above gap</strong></p>
+		<p>controls how address ranges with large gaps are displayed.</p>
+                <br>
+                <p><strong>Disabled</strong></p>
+		<p>With the option disabled, the application keeps the parsed data in a single region. This is the default behavior.</p>
+                <br>
+                <p><strong>Enabled</strong></p>
+		<p>When enabled, the application separates regions when the gap between them exceeds the configured threshold.</p>
+		<p>The threshold is entered in <strong>KB</strong>.</p>
+		<p>The default threshold is: <strong>2048 KB</strong></p>
+		<p>This is useful for HEX files containing data at widely separated addresses, for example a main flash area and a distant special-purpose area.</p>
+		<br>
+		<p><strong>Changing the threshold</strong></p>
+		<p>1. Enable <strong>split into regions above gap</strong>.</p>
+		<p>2. Enter the desired threshold in KB.</p>
+		<p>3. The visualization is rebuilt automatically.</p>
+		<p>Smaller thresholds create more separate regions.</p>
+		<br>
+		<p><strong>Display-size limitation</strong></p>
+		<p>A single region has an internal display cap of <strong>8 MB</strong>.</p>
+		<p>If a region exceeds this limit, it is skipped and a parser/display warning is shown. The application recommends enabling region splitting with a smaller threshold.</p>
+		<br>
+                <div class="chapter-nav">
+                    <a href="#ifheader">← 5.1 Header</a>
+                    <a href="#ifmemory">Next: 5.3 Memory map →</a>
+                </div>
+            </section>
+
+	    <section id="ifmemory">
+                <h4>Reading the Memory Map</h4>
+		<p>The main area displays the loaded address space as a collection of memory pages.</p>
+		<p>Each byte is represented by one pixel.</p>
+		<p><strong>Byte colors</strong></p>
+		<table>
+		    <tr>
+			<th>Visualization</th>
+			<th>Meaning</th>
+		    </tr>
+		    <tr>
+			<td>Black</td>
+			<td>`0xFF` --- erased/high</td>
+		    </tr>
+		    <tr>
+			<td>White</td>
+			<td>`0x00` --- zero/low</td>
+		    </tr>
+		    <tr>
+			<td>Gray</td>
+			<td>`0x01`--`0xFE`</td>
+		    </tr>
+		    <tr>
+			<td>Blue</td>
+			<td>No data at that address</td>
+		    </tr>
+		    <tr>
+			<td>Red</td>
+			<td>MCUboot `IMAGE_MAGIC`</td>
+		    </tr>
+		    <tr>
+			<td>Cyan</td>
+			<td>`image_ok` status byte</td>
+		    </tr>
+		</table>
+		<p>The memory map is therefore a visual representation of the byte values and the sparsity of the HEX file.</p>
+		<br>
+		<p><strong>Page layout</strong></p>
+		<p>The visualization uses:</p>
+		<ul>
+		    <li>128 columns</li>
+		    <li>up to 2048 rows per page</li>
+		</ul>
+		<p>Each page is labelled with:</p>
+		<ul>
+		    <li>start address</li>
+		    <li>end address</li>
+		    <li>number of bytes</li>
+		    <li>column × row dimensions</li>
+		</ul>
+		<p>For example, a page label can identify an address range and its corresponding `128 × N` pixel layout.</p>
+		<br>
+                <h4>Byte Inspector</h4>
+		<p>Move the mouse over a pixel in the memory map.</p>
+		<p>The Byte inspector in the sidebar shows the corresponding address and byte value.</p>
+		<p>For a byte containing data, the inspector displays:</p>
+		<ul>
+		    <li>address in hexadecimal</li>
+		    <li>value in hexadecimal</li>
+		    <li>value in decimal</li>
+		    <li>value in binary</li>
+		</ul>
+		<p>Example format:</p>
+		<p>0x00001020 </p>
+		<p>value: 0xA5 (165 dec, 10100101 bin)</p>
+		<br>
+		<p>If the selected address contains no data, the inspector reports:<p>
+		<p>no data at this address</p>
+		<br>
+		<p>If the byte belongs to a recognized MCUboot header field or trailer element, its role is also displayed.</p>
+		<p>Move the pointer outside the memory map to reset the inspector.</p>
+                <div class="chapter-nav">
+                    <a href="#iftoolbar">← 5.2 Toolbar Controls</a>
+                    <a href="#mcuboot">Next: 5.4 MCUboot →</a>
+                </div>
+            </section>
+
+            <section id="mcuboot">
+                <h2>5.4 MCUboot</h2>
+		<h3>MCUboot Detection Cards</h3>
+		<p>Each non-filtered detection is shown in the <strong>mcuboot detections</strong> section of the sidebar.</p>
+		<p>A detection card can show:</p>
+		<ul>
+		<li>global address</li>
+		<li>region number</li>
+		<li>offset within the region</lí>
+		<li>image classification</li>
+		<li>firmware version</li>
+		<li>build number</li>
+		<li>load address</li>
+		<li>header size</li>
+		<li>protected TLV size</li>
+		<li>image size</li>
+		<li>flags</li>
+		<li>decoded common flags</li>
+		<li>image status</li>
+		</ul>
+		<br>
+		<p>Click a detection card in the sidebar.</p>
+		<p>The application scrolls the corresponding memory-map location into view and briefly flashes the red marker around the detected header.</p>
+		<p>This provides a direct connection between the textual analysis and the byte-level visualization.</p>
+		<br>
+		<h3>MCUboot flags</h3>
+		<p>The application recognizes these common flag bits:</p>
+		<table>
+		<tr>
+		<th>Flag</th>
+		<th>Meaning</th>
+		</tr>
+		<tr>
+		<td>`0x00000001`</td>
+		<td>`PIC`</td>
+		</tr>
+		<tr>
+		<td>`0x00000004`</td>
+		<td>`ENCRYPTED_AES128`</td>
+		</tr>
+		<tr>
+		<td>`0x00000008`</td>
+		<td>`ENCRYPTED_AES256`</td>
+		</tr>
+		<tr>
+		<td>`0x00000010`</td>
+		<td>`NON_BOOTABLE`</td>
+		</tr>
+		<tr>
+		<td>`0x00000020`</td>
+		<td>`RAM_LOAD`</td>
+		</tr>
+		<tr>
+		<td>`0x00000100`</td>
+		<td>`ROM_FIXED`</td>
+		</tr>
+		</table>
+		<br>
+		<p>If none of the recognized flags are set, the application reports:</p>
+		<p>none of the common flags set</p>
+		<br>
+		<p>Unknown flag bits can cause a detection to be classified as unlikely.</p>
+		<br>
+		<h3>MCUboot Swap Trailer and Image Status</h3>
+		<p>The application also searches for MCUboot swap trailers.</p>
+		<p>The trailer contains a 16-byte MCUboot magic structure and an `image_ok` status byte.</p>
+		<p>The application supports two trailer formats:<p>
+		<p>1. <strong>Classic format</strong> --- write size 8.</p>
+		<p>2. <strong>Sized format</strong> --- the write size is stored in the first two bytes before the 14-byte suffix.</p>
+		<br>
+		<p>Recognized plausible write sizes are: 1, 2, 4, 8, 16, 32, 64</p>
+		<br>
+		<h3>Image status</h3>
+		<p>The `image_ok` byte is interpreted as follows:</p>
+		<table>
+		<tr>
+		<th>Value</th>
+		<th>Status</th>
+		</tr>
+		<tr>
+		<td>`0x01`</td>
+		<td>Confirmed</td>
+		</tr>
+		<tr>
+		<td>`0xFF` or unwritten</td>
+		<td>Test / pending</td>
+		</tr>
+		<tr>
+	  	<td>Other value</td>
+                <td>Unknown</td>
+		</tr>
+		</table>
+		<br>
+		<p>The status byte is highlighted in cyan in the memory map.</p>
+		<br>
+		<h3>Status shown in detection cards</h3>
+		<p>A detection can show: <strong>CONFIRMED</strong></p>
+		<p>The `image_ok` byte is `0x01`.</p>
+		<br>
+		<p><strong>TEST / pending</strong></p>
+		<p>The `image_ok` byte is unset/erased. The application describes this as an image that will only boot once unless it is subsequently confirmed.</p>
+		<br>
+		<p><strong>unknown</strong></p>
+		<p>A trailer was found, but the `image_ok` value could not be interpreted.</p>
+		<br>
+		<p><strong>no swap trailer found</strong></p>
+		<p>No matching trailer was detected for the image.</p>
+                <div class="chapter-nav">
+                    <a href="#ifmemory">← 5.3 Memory map</a>
+                    <a href="#steps">Next: 6. Step-by-step instructions →</a>
+                </div>
+            </section>
+
+            <section id="steps">
+                <h2>6. Step-by-step instructions</h2>
+		<p>For a typical firmware analysis, use the following sequence:</p>
+		<p>1.  Open the Intel HEX file.</p>
+		<p>2.  Review the <strong>File</strong> section.</p>
+		<p>3.  Check the number and address range of the regions.</p>
+		<p>4.  Review <strong>Parser warnings</strong>.</p>
+		<p>5.  Select the target nRF54L device if you want an address-range reference.</p>
+		<p>6.  Inspect the memory map visually.</p>
+		<p>7.  Review <strong>mcuboot detections</strong>.</p>
+		<p>8.  Start with detections marked <strong>VERIFIED IMAGE</strong>.</p>
+		<p>9.  Compare version, build number, load address, header size, and image size.</p>
+		<p>10. Review the image status and any matching swap trailer.</p>
+		<p>11. Click a detection card to jump to its location in the memory map.</p>
+		<p>12. Hover over relevant pixels to inspect individual bytes.</p>
+		<p>13. If the address space is very sparse, enable <strong>split into regions above gap</strong>.</p>
+		<p>14. Adjust the split threshold and zoom as needed.</p>
+                <div class="chapter-nav">
+                    <a href="#mcuboot">← 5.4 MCUboot</a>
+                    <a href="#trouble">Next: 7. Troubleshooting →</a>
+                </div>
+            </section>
+
+            <section id="trouble">
+                <h2>7. Troubleshooting</h2>
+		<h3>No memory map appears</h3>
+		<p>Check the <strong>Parser warnings</strong> section.</p>
+		<p>If the file contains no usable data records, the application reports:</p>
+		<p>Could not find any data records in this file.</p>
+		<br>
+		<p>Verify that the selected file is an Intel HEX file containing valid data records.</p>
+		<br>
+		<h3>The file loads but warnings are displayed</h3>
+		<p>Review each warning carefully.</p>
+		<p>A checksum mismatch may indicate corruption. A missing EOF record may indicate an incomplete or truncated file.</p>
+		<br>
+		<h3>A red MCUboot magic value appears but no verified image is shown</h3>
+		<p>A four-byte MCUboot magic match alone is not sufficient.</p>
+		<p>The application performs additional checks on:</p>
+		<ul>
+		<li>header completeness</li>
+		<li>header size</li>
+		<li>image size</li>
+		<li>flags</li>
+		<li>image bounds</li>
+		<li>TLV information magic</li>
+		</ul>
+		<br>
+		<p>The match may therefore be an unrelated occurrence of the magic constant.</p>
+		<br>
+		<h3>A region is skipped</h3>
+		<p>A region larger than the 8 MB display cap is skipped.</p>
+		<p>Enable <strong>split into regions above gap</strong> and reduce the threshold so that the address space is divided into smaller regions.</p>
+		<br>
+		<h3>The selected device shows an address warning</h3>
+		<p>The maximum address represented by the loaded data exceeds the NVM size configured for the selected reference device.</p>
+		<p>Check that the selected device profile is correct and review the HEX file's address ranges.</p>
+		<br>
+		<h3>The Byte inspector says "no data"</h3>
+		<p>The cursor is positioned over an address that is not represented by a data record in the HEX file.</p>
+		<p>This is different from a stored byte whose value happens to be `0xFF`.</p>
+                <div class="chapter-nav">
+                    <a href="#steps">← 6. Step-by-step instructions</a>
+                    <a href="#limitation">Next: 8. Known limitations →</a>
+                </div>
+            </section>
+
+            <section id="limitation">
+                <h2>8. Known limitations</h2>
+		<p>This application is primarily a <strong>visualization and analysis tool</strong>.</p>
+		<p>It does <strong>not</strong>:</p>
+		<ul>
+		<li>program an MCU,</li>
+		<li>communicate with a connected target device,</li>
+		<li>modify firmware,</li>
+		<li>validate a firmware cryptographic signature,</li>
+		<li>calculate or verify an image hash,</li>
+		<li>perform a complete MCUboot image-security validation,</li>
+		<li>prove that an image is bootable on hardware.</li>
+		</ul>
+		<p>The MCUboot classifications are based on the checks implemented by the application. In particular, <strong>UNCONFIRMED</strong> detections require human interpretation because a missing TLV marker can have multiple explanations.</p>
+		<p>The device profiles are explicitly for reference only.</p>
+                <div class="chapter-nav">
+                    <a href="#trouble">← 7. Troubleshooting</a>
+                    <a href="#faq">Next: 9. FAQ &amp; Help →</a>
+                </div>
+            </section>
+
+            <section id="faq">
+                <h2>9. FAQ &amp; Help</h2>
+                <div class="faq-item">
+                    <p><strong>Q: What should I do if a tool won't load?</strong></p>
+                    <p>A: First try clearing your browser cache and reloading the page.</p>
+                </div>
+                <div class="chapter-nav">
+                    <a href="#limitation">← 8. Known limitations</a>
+                    <span class="spacer"></span>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+</div>
+
+<script>
+    (function () {
+        var moonIcon = '<path d="M20.742 13.045a8.088 8.088 0 0 1-2.077.271c-2.135 0-4.14-.83-5.646-2.336-1.507-1.507-2.336-3.512-2.336-5.646 0-.693.09-1.376.271-2.077a.5.5 0 0 0-.633-.61A9.5 9.5 0 1 0 21.352 13.68a.5.5 0 0 0-.61-.635Z"/>';
+        var sunIcon = '<path d="M12 4.5a1 1 0 0 1-1-1v-1a1 1 0 1 1 2 0v1a1 1 0 0 1-1 1Zm0 15a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1Zm7.5-7.5a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2h-1a1 1 0 0 1-1-1Zm-15 0a1 1 0 0 1-1 1h-1a1 1 0 1 1 0-2h1a1 1 0 0 1 1 1Zm13.02-5.52a1 1 0 0 1 0-1.42l.71-.7a1 1 0 1 1 1.41 1.41l-.7.71a1 1 0 0 1-1.42 0Zm-11.04 11.04a1 1 0 0 1 0 1.42l-.71.7a1 1 0 1 1-1.41-1.41l.7-.71a1 1 0 0 1 1.42 0Zm11.04 0a1 1 0 0 1 1.42 0l.7.71a1 1 0 1 1-1.41 1.41l-.71-.7a1 1 0 0 1 0-1.42ZM6.48 5.98a1 1 0 0 1-1.42 0l-.7-.71A1 1 0 1 1 5.77 3.86l.71.7a1 1 0 0 1 0 1.42ZM12 7.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Z"/>';
+
+        var root = document.documentElement;
+        var toggleBtn = document.getElementById('themeToggle');
+        var iconEl = document.getElementById('themeIcon');
+
+        function render(theme) {
+            iconEl.innerHTML = theme === 'dark' ? moonIcon : sunIcon;
+        }
+
+        render(root.getAttribute('data-theme'));
+
+        toggleBtn.addEventListener('click', function () {
+            var current = root.getAttribute('data-theme');
+            var next = current === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            render(next);
+        });
+    })();
+
+    (function () {
+        var sections = document.querySelectorAll('.content section');
+        var navLinks = document.querySelectorAll('a[href^="#"]');
+        var contentEl = document.querySelector('main.content');
+        var defaultChapter = 'introduction';
+
+        function showChapter(id) {
+            var found = false;
+            sections.forEach(function (section) {
+                if (section.id === id) {
+                    section.classList.add('active');
+                    found = true;
+                } else {
+                    section.classList.remove('active');
+                }
+            });
+            if (!found) {
+                document.getElementById(defaultChapter).classList.add('active');
+                id = defaultChapter;
+            }
+
+            navLinks.forEach(function (link) {
+                var isSidebarLink = link.closest('aside.sidebar') !== null;
+                if (isSidebarLink) {
+                    link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+                }
+            });
+
+            contentEl.scrollTop = 0;
+        }
+
+        navLinks.forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                var id = link.getAttribute('href').slice(1);
+                window.location.hash = id;
+                showChapter(id);
+            });
+        });
+
+        window.addEventListener('hashchange', function () {
+            var id = window.location.hash.slice(1) || defaultChapter;
+            showChapter(id);
+        });
+
+        var initialId = window.location.hash.slice(1) || defaultChapter;
+        showChapter(initialId);
+    })();
+</script>
+
+</body>
+</html>

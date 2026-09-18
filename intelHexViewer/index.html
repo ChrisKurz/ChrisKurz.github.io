@@ -1,279 +1,1088 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coming Soon</title>
-    <!-- Google Fonts for professional typography -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bg-color: #050507;
-            --card-bg: rgba(20, 20, 25, 0.75);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --text-primary: #f4f4f6;
-            --text-secondary: #9ca3af;
-            --accent-color: #ffffff;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intel Hex Viewer</title>
+<style>
+  :root{
+    --bg:#0a0d12;
+    --panel:#11151c;
+    --panel-alt:#161b24;
+    --border:#242b38;
+    --border-soft:#1b212c;
+    --text:#e7ebf2;
+    --text-dim:#8892a3;
+    --text-faint:#5a6376;
+    --accent:#5fe3c4;
+    --accent-dim:#2c6e60;
+    --danger:#ff4d5e;
+    --nodata:#26456f;
+    --warn:#e6b34e;
+    --mono: 'JetBrains Mono', 'SF Mono', ui-monospace, Menlo, Consolas, 'Courier New', monospace;
+    --sans: -apple-system, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--sans);}
+  body{min-height:100vh;}
+  a{color:var(--accent);}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  header{
+    padding:22px 28px 18px;
+    border-bottom:1px solid var(--border-soft);
+    display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  }
+  header h1{
+    font-size:20px; margin:0; letter-spacing:0.02em; font-weight:700;
+    display:flex; align-items:center; gap:10px;
+  }
+  header h1 .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);}
+  header p{margin:4px 0 0; font-size:12.5px; color:var(--text-dim); max-width:560px; line-height:1.5;}
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow-x: hidden;
-            padding: 1.5rem;
-        }
+  .toolbar{
+    padding:14px 28px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    border-bottom:1px solid var(--border-soft); background:var(--panel-alt);
+  }
+  .btn{
+    background:var(--panel); border:1px solid var(--border); color:var(--text);
+    padding:8px 14px; border-radius:6px; font-size:13px; font-family:var(--sans);
+    cursor:pointer; transition:border-color .15s, background .15s; display:inline-flex; align-items:center; gap:7px;
+  }
+  .btn:hover{border-color:var(--accent-dim); background:#141a23;}
+  .btn.primary{background:var(--accent); color:#06231c; border-color:var(--accent); font-weight:600;}
+  .btn.primary:hover{background:#7ceed4;}
+  input[type=file]{display:none;}
+  select, .zoomrow{
+    background:var(--panel); border:1px solid var(--border); color:var(--text);
+    padding:7px 10px; border-radius:6px; font-size:13px; font-family:var(--mono);
+  }
+  .zoomrow{display:flex; align-items:center; gap:8px;}
+  .zoomrow input[type=range]{accent-color:var(--accent);}
+  .drop-hint{font-size:12px; color:var(--text-faint);}
+  .spacer{flex:1;}
 
-        /* Background Image with Dark Overlay */
-        .bg-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            /* Using a high-quality abstract dark tech background from Unsplash */
-            background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop') no-repeat center center;
-            background-size: cover;
-        }
+  .layout{display:grid; grid-template-columns: 1fr 340px; gap:0; align-items:start;}
+  @media (max-width: 900px){ .layout{grid-template-columns:1fr;} }
 
-        .bg-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(5, 5, 7, 0.85); /* Darkens the image to fit the black style */
-            backdrop-filter: blur(8px); /* Soft glassmorphic blur */
-            z-index: 2;
-        }
+  main.pages{
+    padding:24px 28px; overflow-x:auto;
+  }
+  .empty-state{
+    color:var(--text-dim); font-size:13.5px; padding:60px 10px; text-align:center; line-height:1.7;
+    border:1px dashed var(--border); border-radius:10px; margin-top:10px;
+  }
+  .empty-state b{color:var(--text);}
 
-        /* Main Content Box */
-        .content-card {
-            position: relative;
-            z-index: 3;
-            max-width: 600px;
-            width: 100%;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 3rem 2.5rem;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(12px);
-        }
+  .region-block{margin-bottom:30px;}
+  .region-title{
+    font-family:var(--mono); font-size:12.5px; color:var(--accent); margin-bottom:8px;
+    display:flex; flex-direction:column; gap:2px;
+  }
+  .region-title .name{font-weight:600;}
+  .region-title .tag{color:var(--text-faint); font-family:var(--sans); font-size:11.5px;}
+  .pagegrid{display:flex; flex-wrap:wrap; gap:16px;}
+  .pagewrap{position:relative; border:1px solid var(--border); border-radius:6px; padding:8px; background:#000;}
+  .pagewrap .pagelabel{
+    font-family:var(--mono); font-size:10.5px; color:var(--text-faint); margin-bottom:6px;
+  }
+  canvas.mem{
+    display:block; image-rendering:pixelated; image-rendering:-moz-crisp-edges; cursor:crosshair;
+  }
+  .ring{
+    position:absolute; border:2px solid var(--danger); border-radius:2px; pointer-events:none;
+    box-shadow:0 0 6px var(--danger);
+  }
+  .ring.flash{animation:pulse 0.9s ease-in-out 2;}
+  @keyframes pulse{ 0%,100%{outline:0 solid transparent;} 50%{outline:6px solid rgba(255,77,94,.35);} }
 
-        .badge {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-color);
-            padding: 0.35rem 0.85rem;
-            border-radius: 50px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-        }
+  aside{
+    border-left:1px solid var(--border-soft); background:var(--panel);
+    padding:20px 20px 60px; min-height:calc(100vh - 130px);
+  }
+  .side-section{margin-bottom:22px;}
+  .side-section h2{
+    font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint);
+    margin:0 0 10px; font-weight:600;
+  }
+  .kv{display:grid; grid-template-columns: auto 1fr; gap:4px 12px; font-size:12.5px; font-family:var(--mono);}
+  .kv div.k{color:var(--text-dim);}
+  .kv div.v{color:var(--text); text-align:right; word-break:break-all;}
 
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 600;
-            letter-spacing: -0.025em;
-            margin-bottom: 1rem;
-            color: var(--accent-color);
-        }
+  .legend-row{display:flex; align-items:center; gap:9px; font-size:12px; margin-bottom:7px; color:var(--text-dim);}
+  .swatch{width:16px;height:16px;border-radius:3px;border:1px solid var(--border); flex:none;}
 
-        p {
-            color: var(--text-secondary);
-            font-size: 1rem;
-            font-weight: 300;
-            line-height: 1.6;
-            margin-bottom: 2.5rem;
-        }
+  .det-card{
+    border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:10px;
+    cursor:pointer; transition:border-color .15s; background:var(--panel-alt);
+  }
+  .det-card:hover{border-color:var(--danger);}
+  .det-card .addr{font-family:var(--mono); font-size:12.5px; color:var(--danger); font-weight:600;}
+  .det-card .ver{font-family:var(--mono); font-size:11.5px; color:var(--text-dim); margin-top:3px;}
+  .det-card .incomplete{color:var(--warn); font-size:11px; margin-top:4px;}
+  .det-card .fields{margin-top:8px; font-size:11px; font-family:var(--mono); color:var(--text-dim); line-height:1.6;}
+  .det-card .fields b{color:var(--text);}
 
-        /* Countdown Grid */
-        .countdown {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 2.5rem;
-        }
+  .inspector{
+    border:1px solid var(--border); border-radius:8px; padding:12px; font-family:var(--mono); font-size:12px;
+    min-height:74px; color:var(--text-dim); background:var(--panel-alt);
+  }
+  .inspector .addr{color:var(--accent); font-size:13px; font-weight:600;}
+  .inspector .role{color:var(--danger);}
 
-        .countdown-item {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--border-color);
-            padding: 1rem 0.5rem;
-            border-radius: 10px;
-        }
+  .warn-list{font-size:11.5px; color:var(--warn); font-family:var(--mono); line-height:1.6; max-height:160px; overflow-y:auto;}
+  .warn-list div{margin-bottom:4px;}
 
-        .countdown-number {
-            font-size: 1.75rem;
-            font-weight: 600;
-            color: var(--accent-color);
-            margin-bottom: 0.2rem;
-        }
-
-        .countdown-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-secondary);
-        }
-
-        /* Notify Form */
-        .notify-form {
-            display: flex;
-            gap: 0.5rem;
-            max-width: 450px;
-            margin: 0 auto;
-        }
-
-        .notify-form input {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 0.9rem;
-            outline: none;
-            transition: border-color 0.2s ease;
-        }
-
-        .notify-form input:focus {
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .notify-form input::placeholder {
-            color: #6b7280;
-        }
-
-        .notify-form button {
-            background: var(--accent-color);
-            color: var(--bg-color);
-            border: none;
-            padding: 0.75rem 1.25rem;
-            border-radius: 8px;
-            font-family: inherit;
-            font-weight: 500;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: opacity 0.2s ease, transform 0.1s ease;
-        }
-
-        .notify-form button:hover {
-            opacity: 0.9;
-        }
-
-        .notify-form button:active {
-            transform: scale(0.98);
-        }
-
-        @media (max-width: 540px) {
-            .content-card {
-                padding: 2rem 1.5rem;
-            }
-            h1 {
-                font-size: 2rem;
-            }
-            .countdown {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .notify-form {
-                flex-direction: column;
-            }
-        }
-    </style>
+  footer{padding:16px 28px 40px; font-size:11px; color:var(--text-faint); font-family:var(--mono);}
+</style>
 </head>
 <body>
 
-    <!-- Background Image & Overlay Layers -->
-    <div class="bg-container"></div>
-    <div class="bg-overlay"></div>
+<header>
+  <div>
+    <h1><span class="dot"></span>Intel Hex Viewer and MCUboot Image Analyzer</h1>
+    <p>Byte-level visualization of Intel HEX files. Each pixel is one byte — black for 0xFF, white for 0x00, grayscale in between. Regions without data are shown in blue. mcuboot image headers are detected and highlighted in red.</p>
+  </div>
+</header>
 
-    <!-- Content Container -->
-    <div class="content-card">
-        <img src="screenshot.jpg" alt="screenshot">
-        <span class="badge">Launching Soon</span>
-        <h1>Something Great is on the Way</h1>
-        <p>We are currently putting the final touches on this tool. Stay tuned for a completely redefined experience.</p>
+<div class="toolbar">
+  <label class="btn primary" for="fileInput">Open .hex file</label>
+  <input type="file" id="fileInput" accept=".hex,.ihex,.txt">
+  <button class="btn" id="sampleBtn">Load sample</button>
+  <button class="btn" id="downloadSampleBtn" style="display:none;">Download sample.hex</button>
+  <button class="btn" id="clearBtn" style="display:none;">Clear</button>
+  <span class="drop-hint">or drop a file anywhere on the page</span>
+  <div class="spacer"></div>
+  <select id="deviceSelect"></select>
+  <div class="zoomrow">
+    <span>zoom</span>
+    <input type="range" id="zoom" min="1" max="6" step="1" value="3">
+    <span id="zoomVal">3x</span>
+  </div>
+  <label class="zoomrow" style="cursor:pointer;">
+    <input type="checkbox" id="splitRegionsChk" style="accent-color:var(--accent);">
+    <span>split into regions above gap</span>
+  </label>
+  <div class="zoomrow" id="splitThresholdRow" style="display:none;">
+    <input type="number" id="splitThresholdKb" min="1" step="1" value="2048" style="width:80px; background:transparent; border:none; color:var(--text); font-family:var(--mono); font-size:13px;">
+    <span>KB</span>
+  </div>
+</div>
 
-        <!-- Live Countdown Timer (Target date is set 30 days into the future automatically) -->
-        <div class="countdown" id="countdown">
-            <div class="countdown-item">
-                <div class="countdown-number" id="days">00</div>
-                <div class="countdown-label">Days</div>
-            </div>
-            <div class="countdown-item">
-                <div class="countdown-number" id="hours">00</div>
-                <div class="countdown-label">Hours</div>
-            </div>
-            <div class="countdown-item">
-                <div class="countdown-number" id="minutes">00</div>
-                <div class="countdown-label">Minutes</div>
-            </div>
-            <div class="countdown-item">
-                <div class="countdown-number" id="seconds">00</div>
-                <div class="countdown-label">Seconds</div>
-            </div>
-        </div>
+<div class="layout">
+  <main class="pages" id="pagesRoot">
+    <div class="empty-state" id="emptyState">
+      No file loaded yet.<br>
+      <b>Open a .hex file</b> or click <b>Load sample</b> above to see a demo image containing two mcuboot headers.
+    </div>
+  </main>
 
-        <!-- Optional Email Notification Form -->
-	<form class="notify-form" action="https://api.web3forms.com/submit" method="POST">
-	    <input type="hidden" name="access_key" value="07f9c11f-0d07-4cfa-9a5f-ec2b5d2c75f9">
-            <input type="text" placeholder="Enter your name here" name="name" required>
-            <input type="email" placeholder="Enter your email address" name="email" required>
-            <button type="submit">Notify Me</button>
-        </form>
-
+  <aside>
+    <div class="side-section">
+      <h2>File</h2>
+      <div class="kv" id="fileStats">
+        <div class="k">status</div><div class="v">no file</div>
+      </div>
     </div>
 
+    <div class="side-section">
+      <h2>Target device (reference only)</h2>
+      <div class="kv" id="deviceStats"></div>
+    </div>
+
+    <div class="side-section">
+      <h2>Legend</h2>
+      <div class="legend-row"><div class="swatch" style="background:#000;"></div>0xFF (erased / high)</div>
+      <div class="legend-row"><div class="swatch" style="background:#fff;"></div>0x00 (zero / low)</div>
+      <div class="legend-row"><div class="swatch" style="background:linear-gradient(90deg,#fff,#000);"></div>gray scale, 0x01–0xFE</div>
+      <div class="legend-row"><div class="swatch" style="background:#26456f;"></div>no data at this address</div>
+      <div class="legend-row"><div class="swatch" style="background:#ff4d5e;"></div>mcuboot magic (IMAGE_MAGIC)</div>
+      <div class="legend-row"><div class="swatch" style="background:#00e5ff;"></div>image_ok byte (confirmed / test)</div>
+    </div>
+
+    <div class="side-section">
+      <h2>mcuboot detections <span id="detCount" style="color:var(--text-faint);"></span></h2>
+      <div id="detections" style="font-size:12px; color:var(--text-faint);">none yet</div>
+    </div>
+
+    <div class="side-section">
+      <h2>Byte inspector</h2>
+      <div class="inspector" id="inspector">Hover over the memory map to inspect a byte.</div>
+    </div>
+
+    <div class="side-section" id="warnSection" style="display:none;">
+      <h2>Parser warnings</h2>
+      <div class="warn-list" id="warnList"></div>
+    </div>
+  </aside>
+</div>
+
+<footer>Intel Hex Viewer — runs entirely in your browser. No file is uploaded anywhere.</footer>
+
 <script>
-    // Set your specific release date and time here (Format: YYYY-MM-DDTHH:MM:SS)
-    const targetDate = new Date("2026-09-30T12:00:00").getTime();
+/* =========================================================================
+   1. DEVICE PROFILES (nRF54L series) — informational reference only.
+      Sizes per Nordic Semiconductor product pages / datasheets.
+   ========================================================================= */
+/* nvm/ram = exact byte counts used for range checks against the loaded file.
+   nvmLabel/ramLabel = the figure as Nordic publishes it (avoids e.g. showing
+   1524 KiB / 1024 / 1024 = "1.49 MB" for a part that is marketed as 1.5 MB). */
+const DEVICES = [
+  {id:'none',    name:'— none / generic —', nvm:null, ram:null},
+  {id:'l15',     name:'nRF54L15',     nvm:1524*1024, ram:256*1024, nvmLabel:'1.5 MB',  ramLabel:'256 KB'},
+  {id:'l10',     name:'nRF54L10',     nvm:1024*1024, ram:192*1024, nvmLabel:'1 MB',    ramLabel:'192 KB'},
+  {id:'l05',     name:'nRF54L05',     nvm:512*1024,  ram:96*1024,  nvmLabel:'0.5 MB',  ramLabel:'96 KB'},
+  {id:'lm20a',   name:'nRF54LM20A',   nvm:2048*1024, ram:512*1024, nvmLabel:'2 MB',    ramLabel:'512 KB'},
+  {id:'lm20b',   name:'nRF54LM20B',   nvm:2048*1024, ram:512*1024, nvmLabel:'2 MB',    ramLabel:'512 KB'},
+  {id:'ls05a',   name:'nRF54LS05A',   nvm:512*1024,  ram:64*1024,  nvmLabel:'0.5 MB',  ramLabel:'64 KB'},
+  {id:'ls05b',   name:'nRF54LS05B',   nvm:512*1024,  ram:96*1024,  nvmLabel:'0.5 MB',  ramLabel:'96 KB'},
+  {id:'lv10a',   name:'nRF54LV10A',   nvm:1024*1024, ram:192*1024, nvmLabel:'1 MB',    ramLabel:'192 KB'},
+];
+const deviceSelect = document.getElementById('deviceSelect');
+DEVICES.forEach(d=>{
+  const o = document.createElement('option');
+  o.value = d.id; o.textContent = d.name;
+  deviceSelect.appendChild(o);
+});
 
-    function updateCountdown() {
-        const now = new Date().getTime();
-        const distance = targetDate - now;
-
-        if (distance < 0) {
-            document.getElementById("countdown").innerHTML = "<p style='grid-column: span 4; margin:0;'>We are live!</p>";
-            return;
-        }
-
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        document.getElementById("days").innerText = String(days).padStart(2, '0');
-        document.getElementById("hours").innerText = String(hours).padStart(2, '0');
-        document.getElementById("minutes").innerText = String(minutes).padStart(2, '0');
-        document.getElementById("seconds").innerText = String(seconds).padStart(2, '0');
+/* =========================================================================
+   2. INTEL HEX PARSER
+   ========================================================================= */
+function parseIntelHex(text) {
+  const lines = text.split(/\r\n|\r|\n/).map(l=>l.trim()).filter(l=>l.length);
+  const segments = [];
+  let extLinear = 0, extSeg = 0, startLinear = null, startSeg = null, eof = false;
+  const warnings = [];
+  const typeCounts = {};
+  let lineNo = 0;
+  for (const line of lines) {
+    lineNo++;
+    if (!line.startsWith(':')) { warnings.push(`Line ${lineNo}: ignored (does not start with ':')`); continue; }
+    const hexBody = line.slice(1);
+    if (hexBody.length < 10 || hexBody.length % 2 !== 0 || /[^0-9a-fA-F]/.test(hexBody)) {
+      warnings.push(`Line ${lineNo}: malformed record`); continue;
     }
+    const raw = [];
+    for (let i=0;i<hexBody.length;i+=2) raw.push(parseInt(hexBody.substr(i,2),16));
+    const len = raw[0], addrHi = raw[1], addrLo = raw[2], type = raw[3];
+    if (raw.length !== len + 5) { warnings.push(`Line ${lineNo}: length field does not match record size`); continue; }
+    const data = raw.slice(4, 4+len);
+    const checksum = raw[4+len];
+    const sum = raw.slice(0, 4+len).reduce((a,b)=>a+b,0);
+    const calcChecksum = (0x100 - (sum & 0xFF)) & 0xFF;
+    if (checksum !== calcChecksum) warnings.push(`Line ${lineNo}: checksum mismatch (file may be corrupted)`);
+    typeCounts[type] = (typeCounts[type]||0)+1;
+    const addr16 = (addrHi<<8)|addrLo;
+    switch(type) {
+      case 0: segments.push({addr: extLinear + extSeg + addr16, data: Uint8Array.from(data)}); break;
+      case 1: eof = true; break;
+      case 2: extSeg = ((data[0]<<8)|data[1]) << 4; break;
+      case 3: startSeg = {cs:(data[0]<<8)|data[1], ip:(data[2]<<8)|data[3]}; break;
+      case 4: extLinear = ((data[0]<<8)|data[1]) << 16; extSeg = 0; break;
+      case 5: startLinear = ((data[0]<<24)|(data[1]<<16)|(data[2]<<8)|data[3])>>>0; break;
+      default: warnings.push(`Line ${lineNo}: unknown record type ${type}`);
+    }
+  }
+  if (!eof) warnings.push('No EOF record (:00000001FF) found — file may be truncated');
+  if (!segments.length) return {segments:[], warnings: warnings.concat(['No data records found in file'])};
+  return {segments, startLinear, startSeg, warnings, typeCounts, eof};
+}
 
-    // Run immediately and update every second
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
+/* Group raw segments into contiguous "regions". By default everything is
+   kept in a single region (safest / simplest view). If the user enables
+   region splitting, segments whose gap exceeds the configured threshold are
+   treated as separate regions instead — useful for a HEX file that mixes
+   e.g. main flash at 0x0 with a UICR-style area at a far-away address,
+   so the tool doesn't build one gigantic sparse array to bridge the gap. */
+const REGION_HARD_CAP = 8 * 1024 * 1024; // 8MB safety cap per region
+
+function buildRegions(segments, mergeGapBytes) {
+  const threshold = (mergeGapBytes == null) ? Infinity : mergeGapBytes;
+  const sorted = segments.slice().sort((a,b)=>a.addr-b.addr);
+  const regions = [];
+  let cur = null;
+  for (const s of sorted) {
+    const segStart = s.addr, segEnd = s.addr + s.data.length - 1;
+    if (!cur) {
+      cur = {min:segStart, max:segEnd, segs:[s]};
+    } else if (segStart - cur.max <= threshold) {
+      cur.max = Math.max(cur.max, segEnd);
+      cur.segs.push(s);
+    } else {
+      regions.push(cur);
+      cur = {min:segStart, max:segEnd, segs:[s]};
+    }
+  }
+  if (cur) regions.push(cur);
+
+  const warnings = [];
+  const out = [];
+  for (const r of regions) {
+    const size = r.max - r.min + 1;
+    if (size > REGION_HARD_CAP) {
+      warnings.push(`Region 0x${r.min.toString(16)}–0x${r.max.toString(16)} is ${fmtBytes(size)}, exceeding the ${fmtBytes(REGION_HARD_CAP)} display cap — skipped. Try enabling "split into regions" with a smaller threshold to break this up.`);
+      continue;
+    }
+    const bytes = new Uint8Array(size);
+    const hasData = new Uint8Array(size);
+    for (const s of r.segs) {
+      const off = s.addr - r.min;
+      bytes.set(s.data, off);
+      hasData.fill(1, off, off + s.data.length);
+    }
+    out.push({minAddr:r.min, maxAddr:r.max, size, bytes, hasData});
+  }
+  return {regions: out, warnings};
+}
+
+/* =========================================================================
+   3. MCUBOOT IMAGE HEADER DETECTION
+      struct image_header (mcuboot bootutil/image.h), 32 bytes, little-endian:
+      magic(4) load_addr(4) hdr_size(2) protect_tlv_size(2) img_size(4)
+      flags(4) ver_major(1) ver_minor(1) ver_revision(2) ver_build_num(4) pad(4)
+   ========================================================================= */
+const MCUBOOT_MAGIC = [0x3D,0xB8,0xF3,0x96]; // little-endian bytes of 0x96f3b83d
+const HEADER_SIZE = 32;
+const KNOWN_FLAGS = [
+  [0x00000001, 'PIC'],
+  [0x00000004, 'ENCRYPTED_AES128'],
+  [0x00000008, 'ENCRYPTED_AES256'],
+  [0x00000010, 'NON_BOOTABLE'],
+  [0x00000020, 'RAM_LOAD'],
+  [0x00000100, 'ROM_FIXED'],
+];
+
+function findMcubootHeaders(bytes, hasData) {
+  const out = [];
+  const n = bytes.length;
+  for (let i=0; i<=n-4; i++) {
+    if (hasData[i] && hasData[i+1] && hasData[i+2] && hasData[i+3] &&
+        bytes[i]===MCUBOOT_MAGIC[0] && bytes[i+1]===MCUBOOT_MAGIC[1] &&
+        bytes[i+2]===MCUBOOT_MAGIC[2] && bytes[i+3]===MCUBOOT_MAGIC[3]) {
+      let complete = i + HEADER_SIZE <= n;
+      if (complete) for (let k=0;k<HEADER_SIZE;k++) if (!hasData[i+k]) { complete=false; break; }
+      let header = null;
+      if (complete) {
+        const dv = new DataView(bytes.buffer, bytes.byteOffset + i, HEADER_SIZE);
+        header = {
+          loadAddr: dv.getUint32(4, true),
+          hdrSize: dv.getUint16(8, true),
+          protectTlvSize: dv.getUint16(10, true),
+          imgSize: dv.getUint32(12, true),
+          flags: dv.getUint32(16, true),
+          verMajor: dv.getUint8(20),
+          verMinor: dv.getUint8(21),
+          verRevision: dv.getUint16(22, true),
+          verBuild: dv.getUint32(24, true),
+        };
+      }
+      out.push({offset:i, complete, header});
+    }
+  }
+  return out;
+}
+
+/* Real image headers are followed immediately (at offset hdr_size + img_size)
+   by a TLV info structure, which starts with one of these 16-bit magic
+   values. This is a strong signal that distinguishes a genuine mcuboot
+   image from a coincidental 4-byte match — e.g. mcuboot's own bootloader
+   binary embeds the IMAGE_MAGIC constant as a literal (to compare against
+   when validating images), which matches the byte pattern but is not
+   itself an image header. */
+const IMAGE_TLV_INFO_MAGIC = 0x6907;
+const IMAGE_TLV_PROT_INFO_MAGIC = 0x6908;
+
+function classifyDetection(det, region) {
+  if (!det.complete || !det.header) {
+    return {level:'incomplete', reasons:['not enough contiguous data to decode the 32-byte header']};
+  }
+  const h = det.header;
+  const reasons = [];
+  let hardFail = false;
+
+  if (h.hdrSize < HEADER_SIZE || h.hdrSize > 4096) {
+    hardFail = true; reasons.push(`hdr_size (${h.hdrSize}) is outside the plausible range (32–4096 bytes)`);
+  }
+  if (h.imgSize === 0) {
+    hardFail = true; reasons.push('img_size is 0');
+  }
+  const knownMask = KNOWN_FLAGS.reduce((m,[bit])=>m|bit, 0);
+  if ((h.flags & ~knownMask) !== 0) {
+    hardFail = true; reasons.push(`flags (0x${h.flags.toString(16).padStart(8,'0')}) use bits outside the currently defined IMAGE_F_* set`);
+  }
+  const imageEnd = det.offset + h.hdrSize + h.imgSize;
+  if (imageEnd > region.size) {
+    hardFail = true; reasons.push('declared image (hdr_size + img_size) runs past the end of the available data');
+  }
+
+  if (hardFail) return {level:'unlikely', reasons};
+
+  let tlvOk = false;
+  if (imageEnd + 4 <= region.size) {
+    let has = true;
+    for (let k=0;k<4;k++) if (!region.hasData[imageEnd+k]) { has = false; break; }
+    if (has) {
+      const tlvMagic = region.bytes[imageEnd] | (region.bytes[imageEnd+1] << 8);
+      tlvOk = (tlvMagic === IMAGE_TLV_INFO_MAGIC || tlvMagic === IMAGE_TLV_PROT_INFO_MAGIC);
+    }
+  }
+  if (tlvOk) return {level:'confirmed', reasons:['TLV info magic found right after the image payload (hdr_size + img_size)']};
+  reasons.push('no TLV info magic found right after hdr_size + img_size — could be a real but truncated image, or a coincidental match');
+  return {level:'plausible', reasons};
+}
+
+/* mcuboot image trailer (written at the end of a slot, so only present in a
+   HEX file if it covers the full slot). Layout, per mcuboot's design.md:
+     ... swap_info (1 field, write-size aligned) ...
+     ... copy_done (1 field, write-size aligned) ...
+     ... image_ok  (1 field, write-size aligned) ...
+     MAGIC (16 bytes total, BOOT_MAGIC_SZ)
+   image_ok: 0x01 = confirmed, 0xFF (or erased/unwritten) = not confirmed (test/pending).
+
+   The 16-byte MAGIC itself has two possible encodings, from mcuboot's
+   bootutil_public.c (union boot_img_magic_t):
+     - When the flash write-size (BOOT_MAX_ALIGN) is exactly 8: a fixed
+       16-byte constant (the "classic" magic).
+     - For any other write-size (1, 2, 4, 16, 32, ...): the first 2 bytes
+       encode the write-size itself (little-endian), followed by a fixed
+       14-byte suffix. This is what modern parts with larger write
+       granularity — e.g. nRF54L RRAM at 16 bytes — actually use.
+   Crucially, this means the write-size (and therefore the exact byte
+   offset of the image_ok field before the magic) can be read directly
+   from the trailer itself in the second case, instead of being guessed. */
+const TRAILER_MAGIC_CLASSIC = [0x77,0xC2,0x95,0xF3,0x60,0xD2,0xEF,0x7F,0x35,0x52,0x50,0x0F,0x2C,0xB6,0x79,0x80]; // write-size == 8
+const TRAILER_MAGIC_SUFFIX  = [0x2D,0xE1,0x5D,0x29,0x41,0x0B,0x8D,0x77,0x67,0x9C,0x11,0x0F,0x1F,0x8A]; // write-size != 8, preceded by 2-byte write-size
+const PLAUSIBLE_WRITE_SIZES = [1,2,4,8,16,32,64];
+
+function trailerStatusFromImageOk(bytes, hasData, idx) {
+  if (idx < 0) return 'unknown';
+  if (!hasData[idx]) return 'test'; // unwritten/erased reads as not-confirmed too
+  if (bytes[idx] === 0x01) return 'confirmed';
+  if (bytes[idx] === 0xFF) return 'test';
+  return 'unknown';
+}
+
+function findMcubootTrailers(bytes, hasData) {
+  const out = [];
+  const n = bytes.length;
+  for (let i=0; i<=n-16; i++) {
+    let classicMatch = true;
+    for (let k=0;k<16;k++) { if (!hasData[i+k] || bytes[i+k]!==TRAILER_MAGIC_CLASSIC[k]) { classicMatch=false; break; } }
+    if (classicMatch) {
+      const writeSize = 8;
+      const idx = i - writeSize;
+      out.push({offset:i, writeSize, probedOffset:writeSize, status: trailerStatusFromImageOk(bytes, hasData, idx), format:'classic'});
+      continue;
+    }
+    if (!hasData[i] || !hasData[i+1]) continue;
+    let suffixMatch = true;
+    for (let k=0;k<14;k++) { if (!hasData[i+2+k] || bytes[i+2+k]!==TRAILER_MAGIC_SUFFIX[k]) { suffixMatch=false; break; } }
+    if (!suffixMatch) continue;
+    const writeSize = bytes[i] | (bytes[i+1] << 8);
+    if (!PLAUSIBLE_WRITE_SIZES.includes(writeSize)) continue; // reject if the "write-size" field doesn't look real
+    const idx = i - writeSize;
+    out.push({offset:i, writeSize, probedOffset:writeSize, status: trailerStatusFromImageOk(bytes, hasData, idx), format:'sized'});
+  }
+  return out;
+}
+
+/* Match a decoded image header to the nearest trailer that follows it
+   (within the header's own declared img area, with some slack for TLVs),
+   so the sidebar can show "confirmed" / "test" / "unknown" per image.
+   Matching is done in absolute address space across ALL regions, not just
+   the header's own region: a swap trailer sits at the end of a flash slot,
+   often far from the header at the slot's start, so enabling region
+   splitting can easily put them in different regions — the two are still
+   part of the same image and must be matched regardless of that grouping. */
+function trailerStatusForHeader(headerGlobalAddr, imageEndGlobal, allTrailersGlobal) {
+  let best = null;
+  for (const t of allTrailersGlobal) {
+    if (t.globalAddr >= imageEndGlobal) {
+      if (!best || t.globalAddr < best.globalAddr) best = t;
+    }
+  }
+  if (!best) {
+    for (const t of allTrailersGlobal) {
+      if (t.globalAddr > headerGlobalAddr) { if (!best || t.globalAddr < best.globalAddr) best = t; }
+    }
+  }
+  return best;
+}
+
+function headerFieldAt(det, offsetIntoRegion) {
+  const rel = offsetIntoRegion - det.offset;
+  if (rel < 0 || rel >= HEADER_SIZE) return null;
+  if (rel < 4) return 'ih_magic';
+  if (rel < 8) return 'ih_load_addr';
+  if (rel < 10) return 'ih_hdr_size';
+  if (rel < 12) return 'ih_protect_tlv_size';
+  if (rel < 16) return 'ih_img_size';
+  if (rel < 20) return 'ih_flags';
+  if (rel < 21) return 'ih_ver.major';
+  if (rel < 22) return 'ih_ver.minor';
+  if (rel < 24) return 'ih_ver.revision';
+  if (rel < 28) return 'ih_ver.build_num';
+  return 'pad1';
+}
+
+/* =========================================================================
+   4. SAMPLE FILE GENERATOR
+      Builds a synthetic memory image with an erased region, two mcuboot
+      headers (primary + secondary slot style), a zero block, some
+      pseudo-code-like data and unwritten gaps — then encodes it to real
+      Intel HEX text, so "sample" and "uploaded file" go through the exact
+      same code path.
+   ========================================================================= */
+function u32le(n){return [n&0xFF,(n>>>8)&0xFF,(n>>>16)&0xFF,(n>>>24)&0xFF];}
+function u16le(n){return [n&0xFF,(n>>>8)&0xFF];}
+function buildMcubootHeaderBytes(f) {
+  return new Uint8Array([
+    ...MCUBOOT_MAGIC, ...u32le(f.loadAddr), ...u16le(f.hdrSize), ...u16le(f.protectTlvSize),
+    ...u32le(f.imgSize), ...u32le(f.flags), f.verMajor, f.verMinor,
+    ...u16le(f.verRevision), ...u32le(f.verBuild), 0,0,0,0
+  ]);
+}
+
+function encodeIntelHex(entries) {
+  const lines = [];
+  let curUpper = -1;
+  function checksumOf(arr){ const sum = arr.reduce((a,b)=>a+b,0); return (0x100-(sum&0xFF))&0xFF; }
+  function emit(len, addr16, type, data) {
+    const rec = [len, (addr16>>8)&0xFF, addr16&0xFF, type, ...data];
+    const cs = checksumOf(rec);
+    lines.push(':' + rec.concat([cs]).map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join(''));
+  }
+  for (const entry of entries) {
+    let addr = entry.addr, data = entry.data, i = 0;
+    while (i < data.length) {
+      const upper = (addr >>> 16) & 0xFFFF;
+      if (upper !== curUpper) { emit(2, 0, 4, [(upper>>8)&0xFF, upper&0xFF]); curUpper = upper; }
+      const lower = addr & 0xFFFF;
+      const chunkLen = Math.min(16, 0x10000 - lower, data.length - i);
+      emit(chunkLen, lower, 0, Array.from(data.slice(i, i+chunkLen)));
+      addr += chunkLen; i += chunkLen;
+    }
+  }
+  emit(0, 0, 1, []);
+  return lines.join('\n') + '\n';
+}
+
+function buildSampleHexText() {
+  const SIZE = 0x20000; // 128 KB -> one full 128x1024 page, easy to browse
+  const full = new Uint8Array(SIZE).fill(0xFF);
+  const hasData = new Uint8Array(SIZE);
+  const mark = (start, len) => hasData.fill(1, start, start+len);
+
+  mark(0x0000, 0x1000); // erased vector-table area, all 0xFF
+
+  const h1 = buildMcubootHeaderBytes({loadAddr:0x1000, hdrSize:512, protectTlvSize:0, imgSize:0x2000, flags:0x1, verMajor:1, verMinor:2, verRevision:3, verBuild:456});
+  full.set(h1, 0x1000); mark(0x1000, 32);
+
+  mark(0x1020, 0x5000-0x1020);
+  for (let i=0x1020;i<0x5000;i++) full[i] = (i*37 + (i>>3)) & 0xFF; // pseudo-code pattern
+
+  // TLV info magic right after header 1's declared payload (0x1000+512+0x2000=0x3200)
+  // -> lets classifyDetection() mark this one as a CONFIRMED image.
+  full[0x3200] = 0x07; full[0x3201] = 0x69; // IMAGE_TLV_INFO_MAGIC, little-endian
+
+  // A coincidental 4-byte match: the magic value embedded inside unrelated
+  // "code" data (like mcuboot's own binary embedding IMAGE_MAGIC as a
+  // literal for its own comparisons), with no TLV/plausible header behind it.
+  // Demonstrates the "filtered / likely not a real image" bucket.
+  full.set(MCUBOOT_MAGIC, 0x2000);
+
+  mark(0x5000, 0x100);
+  for (let i=0x5000;i<0x5100;i++) full[i] = 0x00; // zero-initialised block
+
+  // 0x5100..0x10000 intentionally left with hasData=0 -> "no data" gap
+
+  const h2 = buildMcubootHeaderBytes({loadAddr:0x10000, hdrSize:512, protectTlvSize:32, imgSize:0x3000, flags:0x0, verMajor:1, verMinor:0, verRevision:0, verBuild:1});
+  full.set(h2, 0x10000); mark(0x10000, 32);
+
+  mark(0x10020, 0x18000-0x10020);
+  for (let i=0x10020;i<0x18000;i++) full[i] = (i*17 ^ (i>>2)) & 0xFF;
+
+  // Swap trailer for header 1: "classic" trailer format (write-size 8), CONFIRMED
+  // (image_ok = 0x01, 8 bytes before the magic)
+  full[0x4000-8] = 0x01;
+  full.set(TRAILER_MAGIC_CLASSIC, 0x4000); mark(0x3FF8, 16+8);
+
+  // Swap trailer for header 2: "sized" trailer format (write-size 16, as used
+  // by devices with 16-byte flash write granularity, e.g. nRF54L RRAM),
+  // left as TEST / pending (image_ok byte = 0xFF, unset)
+  full[0x17000-16] = 0xFF;
+  full[0x17000] = 16; full[0x17001] = 0; // write-size, little-endian
+  full.set(TRAILER_MAGIC_SUFFIX, 0x17002); mark(0x17000-16, 16+16);
+
+  const entries = [];
+  let i = 0;
+  while (i < SIZE) {
+    if (!hasData[i]) { i++; continue; }
+    let j = i;
+    while (j < SIZE && hasData[j]) j++;
+    entries.push({addr:i, data: full.slice(i,j)});
+    i = j;
+  }
+  return encodeIntelHex(entries);
+}
+
+/* =========================================================================
+   5. RENDERING
+   ========================================================================= */
+const COLS = 128;
+const MAX_ROWS = 2048;
+const PAGE_BYTES = COLS * MAX_ROWS; // 262144 bytes per box, max
+
+function fmtBytes(n) {
+  if (n >= 1024*1024) return (n/(1024*1024)).toFixed(2) + ' MB';
+  if (n >= 1024) return (n/1024).toFixed(1) + ' KB';
+  return n + ' B';
+}
+function hex(n, digits) { return '0x' + n.toString(16).toUpperCase().padStart(digits||2,'0'); }
+
+let currentState = null; // {regions, warnings, startLinear, typeCounts, allDetections:[{region,det,globalAddr}]}
+let zoom = 3;
+
+function colorForByte(v) {
+  const g = 255 - v;
+  return [g,g,g];
+}
+const NODATA_RGB = [0x26,0x45,0x6f];
+const MAGIC_RGB = [0xff,0x4d,0x5e];
+const STATUS_RGB = [0x00,0xe5,0xff]; // image_ok byte (confirmed/test indicator) — saturated cyan, distinct from grayscale, red, and blue "no data"
+
+function renderAll(state) {
+  const root = document.getElementById('pagesRoot');
+  root.innerHTML = '';
+  const allDets = [];
+
+  // Pass 1: find trailers in every region first, in absolute address space,
+  // so header<->trailer matching below isn't limited to a single region.
+  const allTrailersGlobal = [];
+  state.regions.forEach((region) => {
+    const trailers = findMcubootTrailers(region.bytes, region.hasData);
+    region._trailers = trailers; // cached for pixel overlay below
+    trailers.forEach(t => allTrailersGlobal.push({...t, globalAddr: region.minAddr + t.offset}));
+  });
+
+  state.regions.forEach((region, ridx) => {
+    const dets = findMcubootHeaders(region.bytes, region.hasData);
+    const trailers = region._trailers;
+    dets.forEach(d => {
+      let trailer = null;
+      if (d.complete && d.header) {
+        const headerGlobalAddr = region.minAddr + d.offset;
+        const imageEndGlobal = headerGlobalAddr + d.header.hdrSize + d.header.imgSize;
+        trailer = trailerStatusForHeader(headerGlobalAddr, imageEndGlobal, allTrailersGlobal);
+      }
+      const classification = classifyDetection(d, region);
+      allDets.push({region, regionIdx:ridx, det:d, globalAddr: region.minAddr + d.offset, trailer, classification});
+    });
+
+    const regionDiv = document.createElement('div');
+    regionDiv.className = 'region-block';
+    const title = document.createElement('div');
+    title.className = 'region-title';
+    title.innerHTML = `<span class="name">Region ${ridx+1}</span><span class="tag">${hex(region.minAddr,8)} – ${hex(region.maxAddr,8)} · ${fmtBytes(region.size)}</span>`;
+    regionDiv.appendChild(title);
+
+    const grid = document.createElement('div');
+    grid.className = 'pagegrid';
+
+    const numPages = Math.ceil(region.size / PAGE_BYTES);
+    for (let p=0; p<numPages; p++) {
+      const startOff = p * PAGE_BYTES;
+      const len = Math.min(PAGE_BYTES, region.size - startOff);
+      const rows = Math.ceil(len / COLS);
+
+      const wrap = document.createElement('div');
+      wrap.className = 'pagewrap';
+      const label = document.createElement('div');
+      label.className = 'pagelabel';
+      const pageStartAddr = region.minAddr + startOff;
+      const pageEndAddr = region.minAddr + startOff + len - 1;
+      label.textContent = `${hex(pageStartAddr,8)} – ${hex(pageEndAddr,8)}  (${fmtBytes(len)}, ${COLS}×${rows})`;
+      wrap.appendChild(label);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = COLS; canvas.height = rows;
+      canvas.className = 'mem';
+      canvas.style.width = (COLS*zoom)+'px';
+      canvas.style.height = (rows*zoom)+'px';
+      const ctx = canvas.getContext('2d');
+      const img = ctx.createImageData(COLS, rows);
+      for (let j=0; j<len; j++) {
+        const globalOff = startOff + j;
+        const px = j*4;
+        let rgb;
+        if (!region.hasData[globalOff]) rgb = NODATA_RGB;
+        else rgb = colorForByte(region.bytes[globalOff]);
+        img.data[px]=rgb[0]; img.data[px+1]=rgb[1]; img.data[px+2]=rgb[2]; img.data[px+3]=255;
+      }
+      // overlay magic bytes in red
+      dets.forEach(d => {
+        for (let k=0;k<4;k++) {
+          const off = d.offset + k;
+          if (off >= startOff && off < startOff+len) {
+            const local = off - startOff;
+            const px = local*4;
+            img.data[px]=MAGIC_RGB[0]; img.data[px+1]=MAGIC_RGB[1]; img.data[px+2]=MAGIC_RGB[2]; img.data[px+3]=255;
+          }
+        }
+      });
+      // overlay the confirmed/test indicator byte (image_ok) in yellow
+      trailers.forEach(t => {
+        if (t.probedOffset == null) return;
+        const off = t.offset - t.probedOffset;
+        if (off >= startOff && off < startOff+len) {
+          const local = off - startOff;
+          const px = local*4;
+          img.data[px]=STATUS_RGB[0]; img.data[px+1]=STATUS_RGB[1]; img.data[px+2]=STATUS_RGB[2]; img.data[px+3]=255;
+        }
+      });
+      // fill unused tail pixels (last row padding) as no-data color
+      for (let j=len; j<rows*COLS; j++) {
+        const px = j*4;
+        img.data[px]=NODATA_RGB[0]; img.data[px+1]=NODATA_RGB[1]; img.data[px+2]=NODATA_RGB[2]; img.data[px+3]=255;
+      }
+      ctx.putImageData(img, 0, 0);
+      wrap.appendChild(canvas);
+
+      // ring markers for detections on this page
+      dets.forEach((d,di) => {
+        if (d.offset >= startOff && d.offset < startOff+len) {
+          const local = d.offset - startOff;
+          const x = local % COLS, y = Math.floor(local/COLS);
+          const ring = document.createElement('div');
+          ring.className = 'ring';
+          ring.style.left = (8 + x*zoom - 2) + 'px';
+          ring.style.top = (8 + 18 + y*zoom - 2) + 'px'; // +18 for label height approx
+          ring.style.width = (4*zoom + 4) + 'px';
+          ring.style.height = (zoom + 4) + 'px';
+          ring.dataset.detKey = ridx + '-' + d.offset;
+          wrap.appendChild(ring);
+        }
+      });
+
+      canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const cx = Math.floor((e.clientX - rect.left) / zoom);
+        const cy = Math.floor((e.clientY - rect.top) / zoom);
+        if (cx<0||cy<0||cx>=COLS||cy>=rows) return;
+        const localOff = cy*COLS + cx;
+        if (localOff >= len) { updateInspector(null); return; }
+        const globalOff = startOff + localOff;
+        const addr = region.minAddr + globalOff;
+        const has = region.hasData[globalOff];
+        const val = region.bytes[globalOff];
+        let role = null;
+        for (const d of dets) {
+          const f = headerFieldAt(d, globalOff);
+          if (f) { role = f; break; }
+        }
+        if (!role) {
+          for (const t of trailers) {
+            if (globalOff >= t.offset && globalOff < t.offset+16) { role = 'mcuboot trailer MAGIC'; break; }
+            if (t.probedOffset != null && globalOff === t.offset - t.probedOffset) {
+              role = `image_ok byte (status: ${t.status})`; break;
+            }
+          }
+        }
+        updateInspector({addr, has, val, role});
+      });
+      canvas.addEventListener('mouseleave', () => updateInspector(null));
+
+      grid.appendChild(wrap);
+    }
+    regionDiv.appendChild(grid);
+    root.appendChild(regionDiv);
+  });
+
+  return allDets;
+}
+
+function updateInspector(info) {
+  const el = document.getElementById('inspector');
+  if (!info) { el.innerHTML = 'Hover over the memory map to inspect a byte.'; return; }
+  let html = `<div class="addr">${hex(info.addr,8)}</div>`;
+  if (!info.has) {
+    html += `<div>no data at this address</div>`;
+  } else {
+    html += `<div>value: ${hex(info.val,2)} (${info.val} dec, ${info.val.toString(2).padStart(8,'0')} bin)</div>`;
+    if (info.role) html += `<div class="role">mcuboot header field: ${info.role}</div>`;
+  }
+  el.innerHTML = html;
+}
+
+function decodeFlags(flags) {
+  const set = KNOWN_FLAGS.filter(([bit]) => (flags & bit) !== 0).map(([,name])=>name);
+  return set.length ? set.join(', ') : 'none of the common flags set';
+}
+
+function renderSidebar(state, allDets) {
+  // file stats
+  const fs = document.getElementById('fileStats');
+  const totalSize = state.regions.reduce((a,r)=>a+r.size,0);
+  const regionsInfo = state.regions.map((r,i)=>`#${i+1}: ${hex(r.minAddr,8)}–${hex(r.maxAddr,8)}`).join('<br>');
+  fs.innerHTML = `
+    <div class="k">regions</div><div class="v">${state.regions.length}</div>
+    <div class="k">total bytes</div><div class="v">${fmtBytes(totalSize)}</div>
+    <div class="k">data records</div><div class="v">${state.typeCounts[0]||0}</div>
+    <div class="k">start addr (05)</div><div class="v">${state.startLinear!=null ? hex(state.startLinear,8) : '—'}</div>
+  `;
+  let rangeDiv = document.getElementById('regionRangeInfo');
+  if (!rangeDiv) {
+    rangeDiv = document.createElement('div');
+    rangeDiv.id = 'regionRangeInfo';
+    rangeDiv.style.marginTop = '10px';
+    rangeDiv.style.fontFamily = 'var(--mono)';
+    rangeDiv.style.fontSize = '11px';
+    rangeDiv.style.color = 'var(--text-dim)';
+    fs.parentElement.appendChild(rangeDiv);
+  }
+  rangeDiv.innerHTML = regionsInfo;
+
+  // warnings
+  const warnSection = document.getElementById('warnSection');
+  const warnList = document.getElementById('warnList');
+  if (state.warnings.length) {
+    warnSection.style.display = '';
+    warnList.innerHTML = state.warnings.map(w=>`<div>⚠ ${w}</div>`).join('');
+  } else {
+    warnSection.style.display = 'none';
+  }
+
+  // detections
+  const detCount = document.getElementById('detCount');
+  const detBox = document.getElementById('detections');
+  if (!allDets.length) {
+    detCount.textContent = '';
+    detBox.innerHTML = 'No mcuboot magic value (0x96f3b83d) found in this file.';
+  } else {
+    const likely = allDets.filter(d => d.classification.level !== 'unlikely');
+    const unlikely = allDets.filter(d => d.classification.level === 'unlikely');
+    detCount.textContent = `(${likely.length}${unlikely.length ? ' + ' + unlikely.length + ' filtered' : ''})`;
+    detBox.innerHTML = '';
+
+    const badgeFor = (level) => {
+      if (level === 'confirmed') return `<span style="color:var(--accent); font-size:10.5px; border:1px solid var(--accent-dim); border-radius:4px; padding:1px 6px;">VERIFIED IMAGE</span>`;
+      if (level === 'plausible') return `<span style="color:var(--warn); font-size:10.5px; border:1px solid var(--warn); border-radius:4px; padding:1px 6px;">UNCONFIRMED</span>`;
+      if (level === 'incomplete') return `<span style="color:var(--text-faint); font-size:10.5px; border:1px solid var(--border); border-radius:4px; padding:1px 6px;">INCOMPLETE</span>`;
+      return '';
+    };
+
+    const makeCard = ({region, regionIdx, det, globalAddr, trailer, classification}) => {
+      const card = document.createElement('div');
+      card.className = 'det-card';
+      let html = `<div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;">
+        <div class="addr">${hex(globalAddr,8)}</div>${badgeFor(classification.level)}
+      </div>`;
+      html += `<div class="ver">region ${regionIdx+1}, offset ${hex(det.offset,6)}</div>`;
+      if (!det.complete) {
+        html += `<div class="incomplete">header incomplete — not enough contiguous data to decode</div>`;
+      } else {
+        const h = det.header;
+        html += `<div class="fields">
+          version: <b>${h.verMajor}.${h.verMinor}.${h.verRevision}</b> build <b>${h.verBuild}</b><br>
+          load_addr: <b>${hex(h.loadAddr,8)}</b><br>
+          hdr_size: <b>${h.hdrSize}</b> &nbsp; protect_tlv_size: <b>${h.protectTlvSize}</b><br>
+          img_size: <b>${fmtBytes(h.imgSize)}</b><br>
+          flags: <b>${hex(h.flags,8)}</b><br>
+          <span style="color:var(--text-faint)">${decodeFlags(h.flags)}</span>
+        </div>`;
+        html += `<div class="fields" style="margin-top:6px; padding-top:6px; border-top:1px solid var(--border);">`;
+        if (!trailer) {
+          html += `image status: <b style="color:var(--text-faint)">no swap trailer found</b>`;
+        } else if (trailer.status === 'confirmed') {
+          html += `image status: <b style="color:var(--accent)">CONFIRMED</b> <span style="color:var(--text-faint)">(image_ok=0x01 at magic−${trailer.probedOffset}, write-size ${trailer.writeSize})</span>`;
+        } else if (trailer.status === 'test') {
+          html += `image status: <b style="color:var(--warn)">TEST / pending</b> <span style="color:var(--text-faint)">(image_ok unset — will only boot once unless confirmed)</span>`;
+        } else {
+          html += `image status: <b style="color:var(--text-faint)">unknown</b> <span style="color:var(--text-faint)">(trailer found, image_ok byte unclear)</span>`;
+        }
+        html += `</div>`;
+        if (classification.level === 'plausible') {
+          html += `<div style="margin-top:6px; font-size:10.5px; color:var(--warn);">${classification.reasons.join('; ')}</div>`;
+        }
+      }
+      card.innerHTML = html;
+      card.addEventListener('click', () => {
+        const ring = document.querySelector(`.ring[data-det-key="${regionIdx}-${det.offset}"]`);
+        if (ring) {
+          ring.scrollIntoView({behavior:'smooth', block:'center'});
+          ring.classList.remove('flash');
+          void ring.offsetWidth;
+          ring.classList.add('flash');
+        }
+      });
+      return card;
+    };
+
+    likely.forEach(entry => detBox.appendChild(makeCard(entry)));
+
+    if (unlikely.length) {
+      const details = document.createElement('details');
+      details.style.marginTop = '10px';
+      const summary = document.createElement('summary');
+      summary.style.cursor = 'pointer';
+      summary.style.fontSize = '11.5px';
+      summary.style.color = 'var(--text-faint)';
+      summary.textContent = `${unlikely.length} filtered match${unlikely.length>1?'es':''} — likely not real images`;
+      details.appendChild(summary);
+      const note = document.createElement('div');
+      note.style.fontSize = '11px';
+      note.style.color = 'var(--text-faint)';
+      note.style.margin = '8px 0';
+      note.style.lineHeight = '1.5';
+      note.textContent = 'These byte sequences match the mcuboot magic value, but fail basic sanity checks (implausible hdr_size/img_size, unrecognized flag bits, or a declared image that runs past the available data). This commonly happens when a file contains the mcuboot bootloader itself, which embeds the magic constant as a literal value for its own image-checking code — that is not an image header.';
+      details.appendChild(note);
+      unlikely.forEach(entry => {
+        const card = makeCard(entry);
+        const reasonDiv = document.createElement('div');
+        reasonDiv.style.fontSize = '10.5px';
+        reasonDiv.style.color = 'var(--text-faint)';
+        reasonDiv.style.marginTop = '6px';
+        reasonDiv.textContent = entry.classification.reasons.join('; ');
+        card.appendChild(reasonDiv);
+        details.appendChild(card);
+      });
+      detBox.appendChild(details);
+    }
+  }
+}
+
+function renderDeviceStats() {
+  const dev = DEVICES.find(d=>d.id===deviceSelect.value);
+  const box = document.getElementById('deviceStats');
+  if (!dev || dev.id==='none') { box.innerHTML = `<div class="k">device</div><div class="v">not selected</div>`; return; }
+  let html = `<div class="k">NVM (RRAM)</div><div class="v">${dev.nvmLabel}</div>
+              <div class="k">RAM</div><div class="v">${dev.ramLabel}</div>`;
+  if (currentState) {
+    const totalSize = currentState.regions.reduce((a,r)=>a+r.size,0);
+    const maxAddr = Math.max(...currentState.regions.map(r=>r.maxAddr));
+    if (maxAddr >= dev.nvm) {
+      html += `<div class="k" style="color:var(--warn)">note</div><div class="v" style="color:var(--warn)">max address exceeds selected device's NVM size</div>`;
+    }
+  }
+  box.innerHTML = html;
+}
+
+/* =========================================================================
+   6. LOADING / WIRING
+   ========================================================================= */
+let lastParsed = null; // {segments, warnings, startLinear, typeCounts} — kept so region settings can change without re-parsing
+
+function getRegionSplitSettings() {
+  const enabled = document.getElementById('splitRegionsChk').checked;
+  if (!enabled) return null; // null => no splitting, single region
+  const kb = parseFloat(document.getElementById('splitThresholdKb').value);
+  const bytes = (isFinite(kb) && kb > 0) ? kb * 1024 : 2048 * 1024;
+  return bytes;
+}
+
+function loadHexText(text) {
+  const parsed = parseIntelHex(text);
+  if (!parsed.segments || !parsed.segments.length) {
+    document.getElementById('pagesRoot').innerHTML = `<div class="empty-state">Could not find any data records in this file.<br>${(parsed.warnings||[]).join('<br>')}</div>`;
+    document.getElementById('fileStats').innerHTML = `<div class="k">status</div><div class="v" style="color:var(--danger)">parse failed</div>`;
+    lastParsed = null;
+    return;
+  }
+  lastParsed = parsed;
+  rebuildRegionsAndRender();
+}
+
+function rebuildRegionsAndRender() {
+  if (!lastParsed) return;
+  const {regions, warnings:regionWarnings} = buildRegions(lastParsed.segments, getRegionSplitSettings());
+  const state = {
+    regions,
+    warnings: lastParsed.warnings.concat(regionWarnings),
+    startLinear: lastParsed.startLinear,
+    typeCounts: lastParsed.typeCounts,
+  };
+  currentState = state;
+  const allDets = renderAll(state);
+  renderSidebar(state, allDets);
+  renderDeviceStats();
+}
+
+function clearLoadedFile() {
+  currentState = null;
+  lastParsed = null;
+  document.getElementById('fileInput').value = '';
+  document.getElementById('pagesRoot').innerHTML = `
+    <div class="empty-state" id="emptyState">
+      No file loaded.<br>
+      <b>Open a .hex file</b> or click <b>Load sample</b> above to see a demo image containing two mcuboot headers.
+    </div>`;
+  document.getElementById('fileStats').innerHTML = `<div class="k">status</div><div class="v">no file</div>`;
+  const oldRangeDiv = document.getElementById('regionRangeInfo');
+  if (oldRangeDiv) oldRangeDiv.remove();
+  document.getElementById('detCount').textContent = '';
+  document.getElementById('detections').innerHTML = 'none yet';
+  document.getElementById('warnSection').style.display = 'none';
+  updateInspector(null);
+  document.getElementById('downloadSampleBtn').style.display = 'none';
+  document.getElementById('clearBtn').style.display = 'none';
+  renderDeviceStats();
+}
+
+document.getElementById('fileInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => { loadHexText(reader.result); document.getElementById('clearBtn').style.display = ''; };
+  reader.readAsText(file);
+});
+
+document.getElementById('sampleBtn').addEventListener('click', () => {
+  const text = buildSampleHexText();
+  loadHexText(text);
+  document.getElementById('downloadSampleBtn').style.display = '';
+  document.getElementById('clearBtn').style.display = '';
+  document.getElementById('downloadSampleBtn').onclick = () => {
+    const blob = new Blob([text], {type:'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'sample.hex'; a.click();
+    URL.revokeObjectURL(url);
+  };
+});
+
+document.getElementById('clearBtn').addEventListener('click', clearLoadedFile);
+
+document.getElementById('zoom').addEventListener('input', (e) => {
+  zoom = parseInt(e.target.value, 10);
+  document.getElementById('zoomVal').textContent = zoom + 'x';
+  if (currentState) {
+    const allDets = renderAll(currentState);
+    renderSidebar(currentState, allDets);
+  }
+});
+
+deviceSelect.addEventListener('change', renderDeviceStats);
+
+document.getElementById('splitRegionsChk').addEventListener('change', (e) => {
+  document.getElementById('splitThresholdRow').style.display = e.target.checked ? '' : 'none';
+  rebuildRegionsAndRender();
+});
+document.getElementById('splitThresholdKb').addEventListener('change', rebuildRegionsAndRender);
+document.getElementById('splitThresholdKb').addEventListener('input', () => {
+  clearTimeout(window.__splitDebounce);
+  window.__splitDebounce = setTimeout(rebuildRegionsAndRender, 400);
+});
+renderDeviceStats();
+
+['dragover','drop'].forEach(evt => {
+  document.body.addEventListener(evt, (e) => { e.preventDefault(); });
+});
+document.body.addEventListener('drop', (e) => {
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => { loadHexText(reader.result); document.getElementById('clearBtn').style.display = ''; };
+  reader.readAsText(file);
+});
 </script>
-
 </body>
 </html>
-
