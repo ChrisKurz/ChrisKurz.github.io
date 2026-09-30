@@ -215,64 +215,7 @@
         <h1>Something Great is on the Way</h1>
         <p>We are currently putting the final touches on this tool. Stay tuned for a completely redefined experience.</p>
 
-        <!-- Live Countdown Timer (Target date is set 30 days into the future automatically) -->
-        <div class="countdown" id="countdown">
-            <div class="countdown-item">
-                <div class="countdown-number" id="days">00</div>
-                <div class="countdown-label">Days</div>
-            </div>
-            <div class="countdown-item">
-                <div class="countdown-number" id="hours">00</div>
-                <div class="countdown-label">Hours</div>
-            </div>
-            <div class="countdown-item">
-                <div class="countdown-number" id="minutes">00</div>
-                <div class="countdown-label">Minutes</div>
-            </div>
-            <div class="countdown-item">
-                <div class="countdown-number" id="seconds">00</div>
-                <div class="countdown-label">Seconds</div>
-            </div>
-        </div>
-
-        <!-- Optional Email Notification Form -->
-	<form class="notify-form" action="https://api.web3forms.com/submit" method="POST">
-	    <input type="hidden" name="access_key" value="07f9c11f-0d07-4cfa-9a5f-ec2b5d2c75f9">
-            <input type="text" placeholder="Enter your name here" name="name" required>
-            <input type="email" placeholder="Enter your email address" name="email" required>
-            <button type="submit">Notify Me</button>
-        </form>
-
     </div>
-
-<script>
-    // Set your specific release date and time here (Format: YYYY-MM-DDTHH:MM:SS)
-    const targetDate = new Date("2026-09-30T12:00:00").getTime();
-
-    function updateCountdown() {
-        const now = new Date().getTime();
-        const distance = targetDate - now;
-
-        if (distance < 0) {
-            document.getElementById("countdown").innerHTML = "<p style='grid-column: span 4; margin:0;'>We are live!</p>";
-            return;
-        }
-
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        document.getElementById("days").innerText = String(days).padStart(2, '0');
-        document.getElementById("hours").innerText = String(hours).padStart(2, '0');
-        document.getElementById("minutes").innerText = String(minutes).padStart(2, '0');
-        document.getElementById("seconds").innerText = String(seconds).padStart(2, '0');
-    }
-
-    // Run immediately and update every second
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-</script>
 
 </body>
 </html>
