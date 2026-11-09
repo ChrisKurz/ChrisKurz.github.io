@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project Analyzer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="22" height="22"><rect x="2" y="3" width="8" height="6" rx="1.5"/><rect x="14" y="3" width="8" height="6" rx="1.5"/><rect x="8" y="15" width="8" height="6" rx="1.5"/><path d="M6 9v3h12V9M12 12v3" fill="none"/></svg>
+    </span>
+    <div>
+      <h1>Project Analyzer</h1>
+      <small>for nRF Connect SDK v3.4.1 projects</small>
+    </div>
+  </div>
+  <div class="actions">
+    <label class="btn primary" for="folderInput">Open project folder…</label>
+    <input type="file" id="folderInput" webkitdirectory directory multiple hidden>
+    <label class="btn" for="addFolderInput" title="Add another folder (e.g. zephyr/, nrf/) to the analysis">Add folder…</label>
+    <input type="file" id="addFolderInput" webkitdirectory directory multiple hidden>
+    <button class="btn" id="demoBtn" type="button">Load demo</button>
+    <button class="btn" id="settingsBtn" type="button">Settings</button>
+    <details class="menu" id="exportMenu">
+      <summary class="btn">Export ▾</summary>
+      <div class="menu-body">
+        <button type="button" id="expJson">Analysis as JSON</button>
+        <button type="button" id="expCsv">Function list as CSV</button>
+        <button type="button" id="expSvg">Module map as SVG</button>
+      </div>
+    </details>
+  </div>
+</header>
+
+<div id="progress" class="progress" hidden>
+  <div class="bar"><div id="progressBar"></div></div>
+  <span id="progressText"></span>
+</div>
+
+<nav class="tabs" role="tablist">
+  <button class="tab active" data-tab="overview" role="tab">Overview</button>
+  <button class="tab" data-tab="functions" role="tab">Functions &amp; dependencies</button>
+  <button class="tab" data-tab="map" role="tab">Module map</button>
+  <span id="rootLabel" class="root-label"></span>
+</nav>
+
+<main>
+  <!-- ============================== OVERVIEW ============================== -->
+  <section id="tab-overview" class="pane active">
+    <div id="dropZone" class="drop">
+      <h2>Drop your project folder here</h2>
+      <p>The folder is scanned <b>locally in your browser</b>. Nothing is uploaded.</p>
+      <p class="hint">Pick the application folder (e.g. <code>src/</code> + <code>include/</code>), or a whole west workspace
+        (<code>nrf/</code>, <code>zephyr/</code>, <code>modules/hal/nordic/</code> …) for the complete picture.
+        Build output, <code>.git</code> and similar folders are skipped (see Settings).</p>
+      <p><label class="btn primary big" for="folderInput">Open project folder…</label>
+         <button class="btn big" type="button" id="demoBtn2">Try the demo project</button></p>
+    </div>
+    <div id="overviewStats" hidden></div>
+  </section>
+
+  <!-- ============================== FUNCTIONS ============================== -->
+  <section id="tab-functions" class="pane">
+    <div class="split">
+      <div class="left">
+        <div class="toolbar">
+          <select id="kindSel" title="What to list">
+            <option value="fn">Functions (defined)</option>
+            <option value="ext">External APIs used</option>
+            <option value="macro">Function-like macros</option>
+          </select>
+          <input id="searchInput" type="search" placeholder="Search name or file…" autocomplete="off">
+          <select id="moduleSel" title="Filter by module"><option value="">All modules</option></select>
+          <select id="scopeSel" title="Scope">
+            <option value="">static + global</option>
+            <option value="global">global only</option>
+            <option value="static">static only</option>
+          </select>
+          <span id="countLabel" class="count"></span>
+        </div>
+        <div class="table-wrap">
+          <table id="fnTable">
+            <thead id="fnHead"></thead>
+            <tbody id="fnBody"></tbody>
+          </table>
+          <div class="more"><button class="btn" id="moreBtn" type="button" hidden>Show more</button></div>
+        </div>
+      </div>
+      <aside id="detail" class="detail">
+        <div class="empty">Select a function to see what it calls, who calls it, and its call tree.</div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============================== MODULE MAP ============================== -->
+  <section id="tab-map" class="pane">
+    <div class="toolbar map-tools">
+      <label>Module =
+        <select id="depthSel">
+          <option value="1">top folder (depth 1)</option>
+          <option value="2" selected>depth 2</option>
+          <option value="3">depth 3</option>
+          <option value="4">depth 4</option>
+          <option value="full">full folder</option>
+          <option value="file">single file</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="optExt" checked> External APIs (Zephyr, NCS …)</label>
+      <label><input type="checkbox" id="optUnk"> Unclassified</label>
+      <label><input type="checkbox" id="optRefs" checked> Callback references</label>
+      <label><input type="checkbox" id="optApi" checked> API functions in boxes</label>
+      <label><input type="checkbox" id="optIso" checked> Hide isolated</label>
+      <span class="spacer"></span>
+      <button class="btn" id="relayoutBtn" type="button">Re-layout</button>
+      <button class="btn" id="fitBtn" type="button">Fit</button>
+    </div>
+    <div class="split map-split">
+      <div class="map-wrap">
+        <svg id="mapSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="legend">
+          <span><i class="lg solid"></i> project module</span>
+          <span><i class="lg dashed"></i> external API group</span>
+          <span><i class="lg line"></i> function call</span>
+          <span><i class="lg line ref"></i> only callback references</span>
+          <span class="muted">Scroll = zoom · drag background = pan · drag box = move · click = details</span>
+        </div>
+        <div id="mapEmpty" class="map-empty" hidden>Nothing to show yet. Open a project first.</div>
+      </div>
+      <aside id="mapInfo" class="detail"></aside>
+    </div>
+  </section>
+</main>
+
+<!-- ============================== SETTINGS ============================== -->
+<dialog id="settingsDlg">
+  <form method="dialog" id="settingsForm">
+    <h2>Settings</h2>
+    <label>Skip folders named (comma separated)
+      <input id="setExclude" type="text">
+    </label>
+    <label>File extensions to scan
+      <input id="setExts" type="text">
+    </label>
+    <label>Custom module names <small>(one per line: <code>Name = path/prefix</code>, relative to the opened folder; overrides folder grouping)</small>
+      <textarea id="setModMap" rows="4" placeholder="Application = src&#10;BLE stack = nrf/subsys/bluetooth"></textarea>
+    </label>
+    <label>External API groups <small>(<code>Group : regex</code> on function names that are called but not defined in the scanned sources)</small>
+      <textarea id="setExtRules" rows="10" spellcheck="false"></textarea>
+    </label>
+    <div class="dlg-actions">
+      <button type="button" class="btn" id="setReset">Reset to defaults</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn" id="setClose">Cancel</button>
+      <button type="button" class="btn primary" id="setApply">Apply &amp; re-analyse</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="core.js"></script>
+<script src="demo.js"></script>
+<script src="graph.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
